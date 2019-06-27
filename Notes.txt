@@ -1,0 +1,43 @@
+
+------------ SENTIMENT
+
+- analisi descrittiva
+
+- text pre-processing
+
+- termini più ricorrenti rispettivamente nelle recensioni
+	positive (1 o 2 stelle)
+	negative (3 stelle)
+	neutre (4 o 5 stelle)
+
+- pesatura dei termini basato su dizionario e/o rating delle recensioni
+	> 0 	se esprime una caratteristica positiva
+	< 0 	se esprime una caratteristica negativa
+
+- predizione del rating sulla base dei termini che compaiono nella recensione?
+
+
+
+
+------------ NETWORK
+
+- CREAZIONE
+	Collegare utenti ai prodotti tramite recensioni;
+	Tipizzare utenti e prodotti (pesando gli archi tramite Ratings?)
+
+- ANALISI
+	Degree
+	Centrality measures
+
+- WHO BOUGHT THIS, WOULD ALSO BUY...
+	Creazione di una rete di prodotti con archi pesati sulla similarità che intercorre fra nodi
+		simlarità: se molti utenti hanno comprato entrambi i prodotti
+
+- WHO APPRECIATED THIS, WOULD ALSO APPRICIATE...
+	Rete del punto precedente ma che tenga conto dei punteggi assegnati nelle recensioni
+	Per evitare lo spreading di cattivi prodotti solo per la loro popolarità
+	
+- PRODUCT SUGGESTION
+	Dato un utente X e gli articoli recensiti Y (con punteggio), suggerirgli un paio di acquisti
+	Fatto sull'analisi degli utenti simili: quelli che hanno dato la stessa valutazione di X agli stessi articoli Y
+
