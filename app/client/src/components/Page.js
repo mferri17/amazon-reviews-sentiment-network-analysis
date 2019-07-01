@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Sentiment from './Sentiment/';
 
 const LinkTab = props => (
   <Tab
@@ -51,7 +52,9 @@ const TeamTabs = () => {
         </Tabs>
       </AppBar>
       <div className={classes.tabContainer}>
-        {value}
+        {value === 1 && (
+          <Sentiment />
+        )}
       </div>
     </div>
   );
