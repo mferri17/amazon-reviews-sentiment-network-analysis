@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TeamTabs = ({ teams }) => {
+const TeamTabs = () => {
   const classes = useStyles();
   const [value, setValue] = useState(0);
 
