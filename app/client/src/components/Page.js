@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Dataset from './Dataset/';
 import Sentiment from './Sentiment/';
 
 const LinkTab = props => (
@@ -21,16 +22,13 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
   },
   tabContainer: {
-    minHeight: 'calc(100vh - 112px)',
-    height: '100%',
+    maxHeight: 'calc(100vh - 112px)',
+    height: 'calc(100vh - 112px)',
     width: '100vw',
     maxWidth: '100%',
     display: 'flex',
-    flexDirection: 'row'
-  },
-  tabContent: {
-    padding: 24,
-    width: 'calc(100% - 48px)'
+    flexDirection: 'row',
+    overflow: 'auto'
   }
 }));
 
@@ -52,6 +50,9 @@ const TeamTabs = () => {
         </Tabs>
       </AppBar>
       <div className={classes.tabContainer}>
+        {value === 0 && (
+          <Dataset />
+        )}
         {value === 1 && (
           <Sentiment />
         )}

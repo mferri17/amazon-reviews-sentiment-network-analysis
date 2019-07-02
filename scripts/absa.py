@@ -26,7 +26,7 @@ def preProcessing(input):
 def tokenizeReviews(input):
     tokenizedReviews={}
     tokenizer = nltk.tokenize.punkt.PunktSentenceTokenizer()
-    id=1;
+    id=1
     stopwords = nltk.corpus.stopwords.words("english")
     regexp = re.compile(r'\?')
     for sentence in tokenizer.tokenize(input):
@@ -174,7 +174,6 @@ def identifyOpinion(review, aspect, tokenized):
                             output[aspect]["negative"]["adjectives"].append(words)
                 else:
                     n=n+1
-                    output[aspect]["neutral"]["score"]+=1
                     output[aspect]["neutral"]["sentences"].append(tokenized[key])
                     for words,pos in a.tags:
                         if pos == 'JJ':
