@@ -1,0 +1,39 @@
+
+------------ INTRODUCTION
+
+- analisi descrittiva
+
+- analisi di mercato
+
+
+
+------------ SENTIMENT
+
+- undersampling
+
+- text pre-processing
+
+- termini più ricorrenti rispettivamente nelle recensioni
+	negative (1, 2 o 3 stelle)
+	positive (4 o 5 stelle)	
+
+- pesatura dei termini basato sul rating delle recensioni
+
+- predizione del rating sulla base dei termini che compaiono nella recensione
+
+
+
+
+------------ NETWORK
+
+- collegamento utenti-prodotti
+
+- analisi
+	numeri
+	degree
+	centrality measures ???
+
+- undersampling
+
+- collaborative filtering
+
