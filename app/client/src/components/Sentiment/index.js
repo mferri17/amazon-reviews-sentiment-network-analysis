@@ -1,10 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import classnames from 'classnames';
 import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { getURL } from '../../utils';
+
+const isPositive = ([negative, positive]) => positive >= negative;
+const getPerc = ([negative, positive]) => Math.round(
+  (positive > negative ? positive : negative) * 10000
+) / 100;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,11 +27,31 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column'
   },
+  secondColumn: {
+    width: 'calc(60% - 32px)',
+    display: 'flex',
+    flexDirection: 'column',
+    paddingTop: 16,
+    paddingLeft: 16
+  },
   button: {
     margin: theme.spacing(1),
   },
   dense: {
     marginTop: theme.spacing(2),
+  },
+  negative: {
+    color: '#F44336'
+  },
+  positive: {
+    color: '#4CAF50'
+  },
+  progress: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+		marginTop: '-20px',
+		marginLeft: '-20px'
   }
 }));
 
@@ -37,6 +63,7 @@ const Sentiment = () => {
 
   const evaluate = useCallback(async () => {
     setLoading(true);
+    setResult(null);
     try {
       const response = await fetch(getURL('sentiment'), {
         method: 'POST',
@@ -81,8 +108,25 @@ const Sentiment = () => {
         {loading && (
           <CircularProgress className={classes.progress} color="secondary" />
         )}
-        {result}
       </div>
+      {result && (
+        <div className={classes.secondColumn}>
+          <Typography variant="h4">
+            Overall sentiment
+          </Typography>
+          <Typography variant="h5">
+            <span className={classnames({
+              [classes.positive]: isPositive(result),
+              [classes.negative]: !isPositive(result)
+            })}>
+              {isPositive(result) ? 'Positive'  :'Negative'}
+            </span>
+            <span>
+              {' '}with confidence {getPerc(result)}%
+            </span>
+          </Typography>
+        </div>
+      )}
     </div>
   );
 };

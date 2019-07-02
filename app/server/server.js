@@ -23,9 +23,7 @@ app.post('/sentiment', (req, res) => {
       res.status(500).json(err);
     } else {
       res.json(
-        stdout
-          .replace('[\'', '')
-          .replace('\']', '')
+        JSON.parse(stdout)
       );
     }
   });
