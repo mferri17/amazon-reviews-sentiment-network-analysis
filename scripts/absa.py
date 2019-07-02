@@ -5,12 +5,17 @@ import nltk
 import ast
 import math, itertools, operator
 from textblob import TextBlob
+from nltk.corpus import wordnet
+from nltk.stem.wordnet import WordNetLemmatizer
 
 def preProcessing(input):
+    string = input.lower()
+
     stopwords = nltk.corpus.stopwords.words("english")
     stopwords.append('OMG')
     stopwords.append(':-)')
-    result=(' '.join([word for word in input.split() if word not in stopwords]))
+
+    result=(' '.join([word for word in string.split() if word not in stopwords]))
     print('Following are the Stop Words')
     print(stopwords)
     result=str(result)
@@ -48,6 +53,35 @@ def posTagging(input):
         print(key,' ',value)
         return outputPost
 
+def get_wordnet_pos(treebank_tag):
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return None
+
+def lemmatize(input):
+    lemmatized = {}
+    lemmatizer = WordNetLemmatizer()
+    for key,value in input.items():
+        lemmatized[key] = []
+        for word,tag in value:
+            wntag = get_wordnet_pos(tag)
+            if wntag is None:
+                lemma = lemmatizer.lemmatize(word) 
+            else:
+                lemma = lemmatizer.lemmatize(word, pos=wntag) 
+            lemmatized[key].append((lemma, tag))
+    
+    
+    for key,value in lemmatized.items():
+        print(key,' ',value)
+        return lemmatized
 
 def aspectExtraction(input, threshold):
     prevWord=''
@@ -143,6 +177,8 @@ def absa(reviews, threshold):
     tokenized = tokenizeReviews(pre)
     print("\n\n\n#### Pos Tagging ####\n")
     postagged = posTagging(tokenized)
+    print("\n\n\n#### Lemmatization ####\n")
+    postagged = lemmatize(postagged)
     print("\n\n\n#### Aspect Identification ####\n")
     aspects = aspectExtraction(postagged, threshold)
     print("\n\n\n#### Opinion mining ####\n")
