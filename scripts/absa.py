@@ -135,37 +135,75 @@ def identifyOpinion(review, aspect, tokenized):
             if(aspect in str(value).upper()):
                 count=count+1
                 a=TextBlob(value)
-                output.setdefault(aspect,{"score":[0,0,0], "percent":[0,0,0], "positive":[], "negative":[], "neutral":[]})
+                output.setdefault(aspect, {
+                    "positive": {
+                        "score": 0,
+                        "percent": 0,
+                        "sentences": [],
+                        "adjectives": []
+                    },
+                    "negative": {
+                        "score": 0,
+                        "percent": 0,
+                        "sentences": [],
+                        "adjectives": []
+                    },
+                    "neutral": {
+                        "score": 0,
+                        "percent": 0,
+                        "sentences": [],
+                        "adjectives": []
+                    },
+                })
                 pol=a.sentiment.polarity
                 print(pol)
 
                 if (pol>0):
                     p=p+1
-                    output[aspect]["score"][0]+=pol
-                    output[aspect]["positive"].append(tokenized[key])
+                    output[aspect]["positive"]["score"]+=pol
+                    output[aspect]["positive"]["sentences"].append(tokenized[key])
+                    for words,pos in a.tags:
+                        if pos == 'JJ':
+                            output[aspect]["positive"]["adjectives"].append(words)
                 elif(pol<0):
                     ng=ng+1
-                    output[aspect]["score"][1]+=pol
-                    output[aspect]["negative"].append(tokenized[key])
+                    output[aspect]["negative"]["score"]+=pol
+                    output[aspect]["negative"]["sentences"].append(tokenized[key])
+                    for words,pos in a.tags:
+                        if pos == 'JJ':
+                            output[aspect]["negative"]["adjectives"].append(words)
                 else:
                     n=n+1
-                    output[aspect]["score"][2]+=1
-                    output[aspect]["neutral"].append(tokenized[key])
-
-
+                    output[aspect]["neutral"]["score"]+=1
+                    output[aspect]["neutral"]["sentences"].append(tokenized[key])
+                    for words,pos in a.tags:
+                        if pos == 'JJ':
+                            output[aspect]["neutral"]["adjectives"].append(words)
 
         if(p>0):
-            output[aspect]["score"][0]=round(output[aspect]["score"][0]/p,1)
-            output[aspect]["percent"][0]=(p/count)*100
+            output[aspect]["positive"]["score"]=round(output[aspect]["positive"]["score"]/p,1)
+            output[aspect]["positive"]["percent"]=(p/count)*100
         if(ng>0):
-            output[aspect]["score"][1]=round(output[aspect]["score"][1]/ng,1)
-            output[aspect]["percent"][1]=(ng/count)*100
-
-
+            output[aspect]["negative"]["score"]=round(output[aspect]["negative"]["score"]/ng,1)
+            output[aspect]["negative"]["percent"]=(ng/count)*100
         if(n>0):
-            output[aspect]["score"][2]=round(output[aspect]["score"][2]/n,1)
-            output[aspect]["percent"][2]=(n/count)*100
-        output[aspect]["percent"]=apportion_pcts(output[aspect]["percent"],100)
+            output[aspect]["neutral"]["score"]=round(output[aspect]["neutral"]["score"]/n,1)
+            output[aspect]["neutral"]["percent"]=(n/count)*100
+
+        perc = apportion_pcts([
+            output[aspect]["positive"]["percent"],
+            output[aspect]["negative"]["percent"],
+            output[aspect]["neutral"]["percent"]
+        ],100)
+
+        output[aspect]["positive"]["percent"] = perc[0]
+        output[aspect]["negative"]["percent"] = perc[1]
+        output[aspect]["neutral"]["percent"] = perc[2]
+
+        # make list unique
+        output[aspect]["positive"]["adjectives"] = list(set(output[aspect]["positive"]["adjectives"]))
+        output[aspect]["negative"]["adjectives"] = list(set(output[aspect]["negative"]["adjectives"]))
+        output[aspect]["neutral"]["adjectives"] = list(set(output[aspect]["neutral"]["adjectives"]))
 
     return output
 
