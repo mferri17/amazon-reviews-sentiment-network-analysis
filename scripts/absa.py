@@ -208,7 +208,7 @@ def identifyOpinion(review, aspect, tokenized):
     return output
 
 
-def absa(reviews, threshold):
+def absa(reviews, threshold, out_file):
     print("\n\n\n#### Pre Processing ####\n")
     pre = preProcessing(reviews)
     print("\n\n\n#### Splitting into sentence ####\n")
@@ -221,7 +221,7 @@ def absa(reviews, threshold):
     aspects = aspectExtraction(postagged, threshold)
     print("\n\n\n#### Opinion mining ####\n")
     opinion=identifyOpinion(postagged,aspects,tokenized)
-    f = open("output.json",'w')
+    f = open(out_file,'w')
     json.dump(opinion,f,indent=4)
     f.close()
     return opinion
