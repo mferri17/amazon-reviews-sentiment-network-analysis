@@ -182,8 +182,8 @@ def absa(reviews, threshold):
     print("\n\n\n#### Aspect Identification ####\n")
     aspects = aspectExtraction(postagged, threshold)
     print("\n\n\n#### Opinion mining ####\n")
-    opnion=identifyOpinion(postagged,aspects,tokenized)
+    opinion=identifyOpinion(postagged,aspects,tokenized)
     f = open("output.json",'w')
-    json.dump(opnion,f,indent=4)
+    json.dump(opinion,f,indent=4)
     f.close()
-    return opnion
+    return opinion
