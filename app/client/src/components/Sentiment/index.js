@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Absa from '../Absa';
 import { getURL } from '../../utils';
 
 const isPositive = ([negative, positive]) => positive >= negative;
@@ -52,6 +53,9 @@ const useStyles = makeStyles(theme => ({
     left: '50%',
 		marginTop: '-20px',
 		marginLeft: '-20px'
+  },
+  absaContainer: {
+    marginTop: 24
   }
 }));
 
@@ -60,6 +64,11 @@ const Sentiment = () => {
   const [loading, setLoading] = useState(null);
   const [review, setReview] = useState(null);
   const [result, setResult] = useState(null);
+
+  const {
+    overall,
+    absa
+  } = result || {};
 
   const evaluate = useCallback(async () => {
     setLoading(true);
@@ -116,15 +125,18 @@ const Sentiment = () => {
           </Typography>
           <Typography variant="h5">
             <span className={classnames({
-              [classes.positive]: isPositive(result),
-              [classes.negative]: !isPositive(result)
+              [classes.positive]: isPositive(overall),
+              [classes.negative]: !isPositive(overall)
             })}>
-              {isPositive(result) ? 'Positive'  :'Negative'}
+              {isPositive(overall) ? 'Positive'  :'Negative'}
             </span>
             <span>
-              {' '}with confidence {getPerc(result)}%
+              {' '}with confidence {getPerc(overall)}%
             </span>
           </Typography>
+          <div className={classes.absaContainer}>
+            <Absa aspects={absa} />
+          </div>
         </div>
       )}
     </div>

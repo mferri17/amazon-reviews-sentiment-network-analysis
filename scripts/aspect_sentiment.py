@@ -6,6 +6,7 @@ parser=argparse.ArgumentParser()
 
 parser.add_argument('--source', help='Text review or dataset path', default='reviews_Clothing_Shoes_and_Jewelry_5.json.gz')
 parser.add_argument('--threshold', help='Threshold to filter aspects', default=0, type=int)
+parser.add_argument('--out', help='Threshold to filter aspects', default='output.json')
 
 args = parser.parse_args()
 
@@ -26,4 +27,4 @@ if args.source.endswith('.json.gz'):
 else:
     reviews = args.source
 
-absa(reviews, args.threshold)
+absa(reviews, args.threshold, args.out)
