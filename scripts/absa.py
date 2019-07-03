@@ -7,6 +7,7 @@ import math, itertools, operator
 from textblob import TextBlob
 from nltk.corpus import wordnet
 from nltk.stem.wordnet import WordNetLemmatizer
+from nltk import word_tokenize
 
 #nltk.download('punkt')
 #nltk.download('stopwords')
@@ -131,6 +132,8 @@ contractions_dict = {
 "you've": "you have"
 }
 
+lemmatizer = WordNetLemmatizer()
+
 contractions_re = re.compile('(%s)' % '|'.join(contractions_dict.keys()))
 
 def expand_contractions(string, contractions_dict=contractions_dict):
@@ -157,6 +160,10 @@ def preProcessing(input):
     stopwords.append('OMG')
     stopwords.append(':-)')
     stopwords.append(':)')
+    stopwords.remove('not')
+    stopwords.remove('and')
+    stopwords.remove('or')
+    stopwords.remove('but')
 
     result=(' '.join([word for word in string.split() if word not in stopwords]))
     print('Following are the Stop Words')
@@ -211,7 +218,6 @@ def get_wordnet_pos(treebank_tag):
 
 def lemmatize(input):
     lemmatized = {}
-    lemmatizer = WordNetLemmatizer()
     for key,value in input.items():
         lemmatized[key] = []
         for word,tag in value:
@@ -270,15 +276,19 @@ def apportion_pcts(pcts, total):
 
 def identifyOpinion(review, aspect, tokenized):
     output={}
+    lemmatized = {
+        key: [lemmatizer.lemmatize(word) for word in word_tokenize(str(value).upper())]
+        for key,value in tokenized.items()
+    }
     for aspect,no in aspect:
         count=0
         p=0
         ng=0
         n=0
-        for key,value in tokenized.items():
-            if(aspect in str(value).upper()):
+        for key,value in lemmatized.items():
+            if(aspect in value):
                 count=count+1
-                a=TextBlob(value)
+                a=TextBlob(tokenized[key])
                 output.setdefault(aspect, {
                     "positive": {
                         "score": 0,
