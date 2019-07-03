@@ -101,9 +101,9 @@ Lo studio ha lo scopo di condurre diversi tipi di analisi sulle recensioni del n
 
 Sempre maggiore è il numero di siti web che fanno delle recensioni il proprio principale business. Si pensi ai portali dedicati alla recensione di località turistiche, film o ristoranti. Allo stesso modo, anche Amazon basa sulle recensioni parte della propria fidelizzazione clienti.
 
-Trattandosi di dati testuali prodotti dagli utenti per valutare i prodotti acquistati, le recensioni esprimono attraverso il linguaggio naturale le impressioni dell'autore, le quali possono assumere un carattere di natura positiva o negativa. In questo contesto è inoltre pratica comune associare al proprio pensiero un punteggio che esprima una valutazione del prodotto su una scala numerica. Se questa informazione è fondamentale per i clienti della piattaforma, poiché permette di capire a colpo d'occhio quale possa essere la qualità dell'articolo che si sta considerando di acquistare, è anche vero che tale punteggio possa rappresentare un aiuto importante per riassumere in forma strutturata (e pertanto più facilmente comprensibile da un computer) l'opinione dell'autore riguardo un certo argomento. Pertanto, analizzare congiuntamente il testo di una recensione ed il punteggio ad essa associato è fondamentale per determinare una correlazione fra il linguaggio naturale e l'opinione dell'utente nei confronti del prodotto, anche detta \textbf{sentiment}. Inoltre, l'elaborazione del testo può considerare il piano morfologico del linguaggio per derivare l'opinione espressa riguardo le diverse caratteristiche del prodotto, dette \textbf{aspect}, espresse della recensione. Ciò è particolarmente utile per migliorare la qualità dei propri prodotti e ottenere quindi un vantaggio sul piano commerciale.
+Trattandosi di dati testuali prodotti dagli utenti per valutare i prodotti acquistati, le recensioni esprimono attraverso il linguaggio naturale le impressioni dell'autore, le quali possono assumere un carattere di natura positiva o negativa. In questo contesto è inoltre pratica comune associare al proprio pensiero un punteggio che esprima una valutazione del prodotto su una scala numerica. Se questa informazione è fondamentale per i clienti della piattaforma, poiché permette di capire a colpo d'occhio quale possa essere la qualità dell'articolo che si sta considerando di acquistare, è anche vero che tale punteggio possa rappresentare un aiuto importante per riassumere in forma strutturata (e pertanto più facilmente comprensibile da un computer) l'opinione dell'autore riguardo un certo argomento. Pertanto, analizzare congiuntamente il testo di una recensione ed il punteggio ad essa associato è fondamentale per determinare una correlazione fra il linguaggio naturale e l'opinione dell'utente nei confronti del prodotto, anche detta \textbf{sentiment}. Inoltre, l'elaborazione del testo può considerare il piano morfologico del linguaggio per derivare l'opinione espressa riguardo le diverse caratteristiche del prodotto, dette \textbf{aspect}, espresse nella recensione. Ciò è particolarmente utile per migliorare la qualità dei propri prodotti e ottenere quindi un vantaggio sul piano commerciale.
 
-Infine, l'analisi delle recensioni può essere utile anche per ottenere un'approssimativa profilazione di un utente; questa può rivelarsi particolarmente rilevante dal punto di vista del marketing, ad esempio per dare suggerimenti ad altri utenti che dimostrano di avere le medesime preferenze del primo. Allo stesso modo, può essere costruito anche un sistema di suggerimenti basato su prodotti simili o solitamente venduti insieme. Tali tecniche vengono dette di \textbf{collaborative filtering}.
+Infine, l'analisi delle recensioni può essere utile anche per ottenere un'approssimativa profilazione di un utente; questa può rivelarsi particolarmente rilevante dal punto di vista del marketing, ad esempio per dare suggerimenti ad altri utenti che dimostrano di avere le medesime preferenze. Allo stesso modo, può essere costruito un sistema di suggerimenti basato su prodotti simili o solitamente venduti insieme. Tali tecniche vengono dette di \textbf{collaborative filtering}.
 
 Il seguente elaborato si pone l'obiettivo di sperimentare con i concetti appena presentati per determinare quanto sia possibile ottenere attraverso l'analisi delle recensioni di un portale e-commerce come Amazon.
 
@@ -112,7 +112,7 @@ Il seguente elaborato si pone l'obiettivo di sperimentare con i concetti appena 
 \subsection{Dataset}
 \label{sec:dataset}
 
-Il dataset utilizzato per effettuare le analisi è fornito ufficialmente da Amazon e contiene recensioni redatte fra il 1996 e il 2014, per diverse categorie di prodotti \cite{site:amazon-reviews-original-dataset}. Poiché contenente un gran numero di recensioni che coinvolgono altrettanti utenti e prodotti, talvolta poco partecipativi all'interno del portale e-commerce, si è scelto di utilizzare ai fini del progetto una versione rielaborata del suddetto dataset, reperibile qui: \url{http://jmcauley.ucsd.edu/data/amazon}. Julian McAuley \cite{site:julianmcauley}, professore dell'Università di San Diego, ha estrapolato dal dataset originale solamente i record delle recensioni riguardanti prodotti e utenti con almeno cinque recensioni ciascuno; ciò viene definito in teoria dei grafi con il termine \textbf{k-core}, cioè un sottografo in cui tutti i nodi hanno un grado almeno pari a \texttt{k} \cite{site:wiki-kcore}.
+Il dataset utilizzato per effettuare le analisi è fornito ufficialmente da Amazon e contiene recensioni redatte in lingua inglese fra il 1996 e il 2014, per diverse categorie di prodotti \cite{site:amazon-reviews-original-dataset}. Poiché contenente un gran numero di recensioni che coinvolgono altrettanti utenti e prodotti, talvolta poco partecipativi all'interno del portale e-commerce, si è scelto di utilizzare ai fini del progetto una versione rielaborata del suddetto dataset, reperibile qui: \url{http://jmcauley.ucsd.edu/data/amazon}. Julian McAuley \cite{site:julianmcauley}, professore dell'Università di San Diego, ha estrapolato dal dataset originale solamente i record delle recensioni riguardanti prodotti e utenti con almeno cinque recensioni ciascuno; ciò viene definito in teoria dei grafi con il termine \textbf{k-core}, cioè un sottografo in cui tutti i nodi hanno un grado almeno pari a \texttt{k} \cite{site:wiki-kcore}.
 
 \nocite{site:amazon-reviews-5-core-dataset}
 
@@ -196,6 +196,7 @@ Questo contiene un totale di \textbf{278.677 recensioni}, divise fra \textbf{39.
 
 
 \subsection{Distribuzione di \texttt{rating}}
+\label{sec:rating-distr}
 
 In figura \ref{fig:rating-distr-orig} è possibile osservare la distribuzione del campo \texttt{rating}, che costituisce l'elemento fondamentale su cui costruire un modello supervisionato di sentiment analysis. Come è possibile osservare, questa variabile è fortemente sbilanciata sui valori 4 e 5, motivo che a fronte di alcune considerazioni future porterà il problema ad essere prima binarizzato e successivamente downsampled per ridurre il gap fra la classe positiva e quella negativa.
 
@@ -356,17 +357,134 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 \section{Sentiment Analysis}
 
 
+La sentiment analysis è il processo che, attraverso l'elaborazione del linguaggio naturale, consente di identificare e estrarre da un testo un'opinione: positiva, negativa o neutrale. Ci sono varie tecniche che è possibile adottare per svolgere sentiment analysis, che ha inizio dal pre-processing del testo al fine di identificare le parole utilizzate e successivamente classificarne il sentiment.
+
+La polarità espressa da ciascuna parola, che successivamente può contribuire all'identificazione di un sentiment per l'intera frase, può essere reperita in un vocabolario linguistico piuttosto che attraverso un dizionario appreso dai dati a disposizione. Quest'ultimo approccio è realizzabile qualora si abbia un elemento nel dataset da usare come target per la classificazione durante l'apprendimento supervisionato dei termini associati a sentimenti positivi o negativi.
+
+In questo capitolo viene presentata solamente l'analisi preliminare effettuata sul testo delle recensioni nel dataset. Tale analisi sarà seguita nei capitoli successivi da due diversi approcci per l'identificazione del sentiment.
+
+
 
 \subsection{Assunzioni}
-\label{sec:bn-assumptions}
 
-\subsection{Binarizzazione}
+A causa dell'elevato sbilanciamento della variabile target \texttt{rating}, già emerso nel capitolo \ref{sec:rating-distr}, si è considerato che la maggior parte degli algoritmi di apprendimento supervisionato di sentiment analysis avrebbero performato male sul dataset originale e non filtrato. Per questo motivo, in alcune fasi della sentiment analysis si è deciso di mettere in atto delle contromisure per arginare il problema, e a posteriori è possibile dire che tali scelte si sono rivelate corrette per ottenere dei modelli di predizione (capitolo \ref{sec:sentiment-prediction}) con prestazioni migliori.
 
-\subsection{Undersampling}
+
+\subsubsection{Binarizzazione}
+
+La prima scelta effettuata per ribilanciare le classi del target è stata quella di binarizzare l'outcome. Se il \texttt{rating} è espresso nel dataset su un dominio discreto da 1 a 5 (figura \ref{fig:rating-distr-orig}), considerata l'elevata percentuale di recensioni con punteggio 4 o 5 si è pensato di raggruppare quest'ultime in un'unica classe che esprimesse un sentimento positivo; i valori minori o uguali a 3 sono invece stati raggruppati per rappresentare la classe negativa. In funzione del ridotto numero di recensioni negative, si è preferito in questa sede escludere la considerazione di un'eventuale classe per il sentiment neutrale, anche in funzione della difficoltà di classificazione.
+
+
+\subsubsection{Undersampling}
+
+A seguito della binarizzazione si sono quindi ottenute 221.597 e 57.080 recensioni con sentiment rispettivamente positivo e negativo. Essendo ancora insufficiente per ottenere buoni modelli di machine learning si è quindi proceduto effettuando undersampling della classe di maggioranza, attraverso una funzione che ha portato alla generazione di un dataset con 57.080 recensioni per entrambi i sentiment considerati.
+
+
 
 \subsection{Elaborazione del testo}
 
-\subsection{Parole più usate}
+Affinché qualsiasi operazione di analisi testuale possa essere portata a termine con successo è necessario che i testi considerati vengano sottoposti a una fase di pre-processing davvero fondamentale. Questa si compone di diversi step, alcuni dei quali facoltativi, che hanno l'obiettivo di suddividere il testo in parole e successivamente normalizzarle sulla base di scelte operative o regole linguistiche.
+
+Vengono qui presentate le fasi generiche di elaborazione di un testo e quindi descritte le modalità attraverso le quali sono state implementate. Si consideri che si sta considerando testo scritto in lingua inglese, pertanto non soggetto alla presenza di caratteri che richiedono trattazioni particolari.
+
+La libreria utilizzata per portare a termine queste operazioni è \texttt{NLTK} (Natural Language Toolkit) \cite{site:nltk}, ampiamente utilizzata dalla community.
+
+
+\subsubsection{Tokenizer}
+
+La prima fase di elaborazione è sempre quella di tokenizzazione, cioè la suddivisione del testo in \textit{token}, solitamente parole. Per questa operazione è possibile sfruttare spazi e segni di interpunzione, ma anche caratteri speciali, numeri o l'alternarsi di lettere maiuscole e minuscole.
+
+Diverse tecniche sono state utilizzate per questo elaborato. \\
+In prima fase si è scelto di effettuare un'analisi relativa alle parole più comuni, quindi si è scelto di costruire un tokenizer basato su una espressione regolare personalizzata: \texttt{[\^\textbackslash d\textbackslash W][\textbackslash w\textbackslash']*}. Questa consente di considerare come \textit{token} tutte le parole, ma non i numeri, e soprattutto di preservare eventuali contrazioni tipiche della lingua inglese per i verbi o il genitivo sassone. \\
+Per le fasi successive della sentiment analysis si è invece optato per un tokenizer più standard, solitamente fornito di default dalla libreria in uso.
+
+
+\subsubsection{Normalizer}
+
+Ottenuto l'elenco dei \textit{token} costituenti un testo è necessario che essi vengano normalizzati. In questa fase si possono eseguire diverse operazioni, come ad esempio la rimozione o modifica di alcuni caratteri (se non precedentemente fatto direttamente sul testo), ma soprattutto e molto più frequentemente la conversione a caratteri minuscoli, come nel caso in esame.
+
+
+\subsubsection{Stopwords}
+
+Prettamente dipendente dalla lingua che si sta considerando, la rimozione delle stopwords consiste nell'eliminazione dall'elenco di \textit{token} delle parole altamente ricorrenti in una lingua: articoli, preposizioni, alcuni aggettivi, ... É importante rimuovere le stopwords poiché non forniscono informazione alcuna e potrebbero anche degradare le performance delle analisi successivamente applicate al testo.
+
+Per ogni lingua è solitamente a disposizione delle diverse librerie una lista di stopwords. Per questo progetto si è scelto di ottenere la lista di stopwords inglesi ma successivamente modificarla per evitare la rimozione di alcune parole che si sono ritenute potenzialmente utili per la valutazione delle recensioni: "not" e "but" sono due esempi particolarmente rilevanti.
+
+
+\subsubsection{Stemmer}
+
+Anche la fase di stemmer (come la successiva qui presentata) è fortemente dipendente dalla lingua che si sta analizzando, questa volta derivato dalle regole grammaticali che costituiscono la fine delle parole. Si pensi ad esempio ai plurali o i participi in inglese, costituiti con regole ben precise: l'applicazione di uno stemmer riduce queste parole alla propria forma base contraendo le ultime lettere, pratica particolarmente utile per l'identificazione di concetti ricorrenti. Fra quelle fin'ora descritte lo stemming è l'operazione più dispendiosa in termini computazionali, quindi deve essere applicato di volta in volta effettuando una valutazione di costi e benefici.
+
+
+\subsubsection{Lemmatizer}
+
+Simile allo stemming, la lemmatization è un tipo di elaborazione linguistica ancora più potente. Anziché limitarsi a troncare la fine di alcune parole come fa uno stemmer, il lemmatizer converte ciascuna nel proprio lemma linguistico: i verbi all'infinito, per esempio. Ciò consente di ottenere una lista di \textit{token} in cui parole simili che riguardano lo stesso concetto semantico vengano ricondotte al medesimo lemma. È sicuramente la fase più dispendiosa fra tutte e sia per motivi computazionali che di reperibilità dei dizionari è quella in genere meno utilizzata.
+
+
+\subsubsection{Un esempio}
+
+A dimostrazione di quanto appena esplicato, sia per chiarificare i concetti presentati che per fornire un esempio di elaborazione applicata al testo per la sezione successiva, viene qui mostrato una frase esemplificativa per dimostrare il pre-processing testuale applicatovi.
+
+\begin{verbatim}
+Testo:
+"Hi! This... isn't a beautiful sentence with some interesting 
+$70 and $5,50 features like people's names and Mr.  Fox thoughts 
+for number such as 23, 4 and 7 or peer2peer and wi-fi with 
+snake_case but not kebab-case."
+
+Tokenization e lowercasing:
+['hi', 'this', "isn't", 'a', 'beautiful', 'sentence', 'with', 
+'some', 'interesting', 'and', 'features', 'like', "people's", 
+'names', 'and', 'mr', 'fox', 'thoughts', 'for', 'number', 
+'such', 'as', 'and', 'or', 'peer2peer', 'and', 'wi', 'fi', 
+'with', 'snake_case', 'but', 'not', 'kebab', 'case']
+
+Rimozione stopwords:
+['hi', "isn't", 'beautiful', 'sentence', 'interesting', 'features', 
+'like', "people's", 'names', 'mr', 'fox', 'thoughts', 'number', 
+'peer2peer', 'wi', 'fi', 'snake_case', 'but', 'not', 'kebab', 'case']
+
+Stemming:
+['hi', "isn't", 'beauti', 'sentenc', 'interest', 'featur', 'like', 
+'peopl', 'name', 'mr', 'fox', 'thought', 'number', 'peer2peer', 
+'wi', 'fi', 'snake_cas', 'but', 'not', 'kebab', 'case']
+\end{verbatim}
+
+
+
+\subsection{Parole più comuni}
+
+A seguito dell'elaborazione testuale apportata sui campi \texttt{text} e \texttt{summary} del dataset, come descritto nella precedente sezione, si sono quindi potute calcolare le parole più ricorrenti all'interno del dataset. Per ottenere questo risultato e soprattutto visualizzarlo in maniera accattivante si è scelto di utilizzare la libreria \texttt{WordCloud} \cite{site:wordcloud}, appositamente pensata per ottenere questo tipo di risultato.
+
+Nelle figure \ref{fig:wordcloud-all}, \ref{fig:wordcloud-pos}, \ref{fig:wordcloud-neg} vengono quindi riportate le parole più comuni all'interno del campo \texttt{text} del dataset, prima considerando tutte le recensioni e successivamente solo quelle positive e negative.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.36]{images/04_01_wordcloud_all.png}
+	\caption[Parole più comuni in TUTTE le recensioni]{Parole più comuni in TUTTE le recensioni}
+	\label{fig:wordcloud-all}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.36]{images/04_02_wordcloud_pos.png}
+	\caption[Parole più comuni nelle recensioni POSITIVE]{Parole più comuni nelle recensioni POSITIVE}
+	\label{fig:wordcloud-pos}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.36]{images/04_03_wordcloud_neg.png}
+	\caption[Parole più comuni nelle recensioni NEGATIVE]{Parole più comuni nelle recensioni NEGATIVE}
+	\label{fig:wordcloud-neg}
+\end{figure}
+
+
+\subsubsection{Alcune considerazioni}
+
+Come si evince dalle WordCloud, è possibile notare che alcune parole siano ricorrenti per entrambi i sentiment. Questo comportamento è del tutto normale per alcune parole tipiche del linguaggio che si sta considerando, utilizzate spesso in tutte le recensioni. Anche quelle negative per esempio potrebbero contenere parole di natura positiva, ma spesso negate attraverso l'utilizzo di avverbi di negazione.
+
+Questo è il motivo per cui molte parole, seppur sembrerebbe logico inserirle nella lista di stopwords affinché non vengano impropriamente considerate, possono comunque rivelarsi utili sia per task di sentiment prediction (capitolo \ref{sec:sentiment-prediction}) che di aspect based sentiment analysis (capitolo \ref{sec:absa}). Questa affermazione è confermata da alcuni test eseguiti proprio inserendo alcune parole comune ad entrambi i sentiment all'interno della lista di stopwords: le performance dei risultati subivano un peggiormento.
 
 
 
@@ -375,6 +493,7 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 
 
 \section{Sentiment Prediction}
+\label{sec:sentiment-prediction}
 
 \subsection{Pesatura dei termini (TF-IDF)}
 
@@ -395,6 +514,7 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 
 
 \section{Aspect Based Sentiment Analysis}
+\label{sec:absa}
 
 \subsection{Elaborazione del testo}
 
