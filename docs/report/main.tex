@@ -110,8 +110,9 @@ Il seguente elaborato si pone l'obiettivo di sperimentare con i concetti appena 
 
 
 \subsection{Dataset}
+\label{sec:dataset}
 
-Il dataset utilizzato per effettuare le analisi è fornito ufficialmente da Amazon e contiene recensioni redatte fra il 1996 e il 2014, per diverse categorie di prodotti \cite{site:amazon-reviews-original-dataset}. Poiché contenente un gran numero di recensioni che coinvolgono altrettanti utenti e prodotti, talvolta poco partecipativi all'interno del portale e-commerce, si è scelto di utilizzare ai fini del progetto una versione rielaborata del suddetto dataset, reperibile qui: \url{http://jmcauley.ucsd.edu/data/amazon}. Julian McAuley \cite{site:julianmcauley}, professore dell'Università di San Diego, ha estrapolato dal dataset originale solamente i record delle recensioni riguardanti prodotti e utenti con almeno cinque recensioni ciascuno; ciò viene definito in teoria dei grafi con il termine \textbf{k-core}, cioè un sottografo in cui tutti i nodi hanno un grado almeno pari a \texttt{k}.
+Il dataset utilizzato per effettuare le analisi è fornito ufficialmente da Amazon e contiene recensioni redatte fra il 1996 e il 2014, per diverse categorie di prodotti \cite{site:amazon-reviews-original-dataset}. Poiché contenente un gran numero di recensioni che coinvolgono altrettanti utenti e prodotti, talvolta poco partecipativi all'interno del portale e-commerce, si è scelto di utilizzare ai fini del progetto una versione rielaborata del suddetto dataset, reperibile qui: \url{http://jmcauley.ucsd.edu/data/amazon}. Julian McAuley \cite{site:julianmcauley}, professore dell'Università di San Diego, ha estrapolato dal dataset originale solamente i record delle recensioni riguardanti prodotti e utenti con almeno cinque recensioni ciascuno; ciò viene definito in teoria dei grafi con il termine \textbf{k-core}, cioè un sottografo in cui tutti i nodi hanno un grado almeno pari a \texttt{k} \cite{site:wiki-kcore}.
 
 \nocite{site:amazon-reviews-5-core-dataset}
 
@@ -164,10 +165,10 @@ Ogni record è la rappresentazione di una singola recensione, svolta da parte di
 
 Per quanto riguarda i campi relativi alla recensione, è possibile visualizzare sia il titolo che il testo del corpo, oltre al punteggio espresso su una scala numerica da 1 a 5. Poiché ciò rappresenta il sentiment associato alla recensione, questo attributo costituirà anche la variabile target per l'analisi e l'addestramento dei modelli di machine learning.
 
-Il campo \texttt{helpful} non è definito su un preciso dominio e pertanto si è scelto di ignorarlo. Per il timestamp è stato computato un campo \texttt{date} di tipo \textit{datetime} e per semplificare il concetto associato ad ogni campo si è scelto di rinominarli. Al termine della trasformazione, il dataset risultante è il seguente:
+Il campo \texttt{helpful} presenta un dominio non particolarmente definito e non è stato considerato per l'analisi, mentre per il timestamp si è computato un attributo \texttt{date} di tipo \textit{datetime}; infine, per semplificare il concetto associato ad ogni campo si è scelto di rinominarli. Al termine della trasformazione, il dataset risultante è il seguente:
 
 \begin{table}[H]
-	\caption{Schema modificato del dataset}\label{tab:df-schema}
+	\caption{Schema modificato del dataset}\label{tab:df-schema-new}
 	\centering
 	\begin{tabular}{|l|l|l|}
 		\hline
@@ -186,6 +187,7 @@ Il campo \texttt{helpful} non è definito su un preciso dominio e pertanto si è
 
 
 \subsection{Dimensioni}
+\label{sec:dimensions}
 
 Dalla fonte citata nell'introduzione, da cui è stato reperito il dataset, è possibile notare che siano presenti varie possibilità di download. Diverse categorie di prodotti sono state testate durante l'intero sviluppo dello studio, ma ai fini di redigere questo elaborato verrà considerato il dataset 5-core chiamato \textit{Clothing, Shoes and Jewelry}, contenente recensioni relative al mercato dei vestiti, delle scarpe e dei gioielli.
 
@@ -250,11 +252,100 @@ Analizzando quindi la distribuzione del \texttt{rating} suddiviso per mesi e gio
 \section{Network Analysis}
 \label{sec:network-anal}
 
+
+Nonostante tale elaborato non si concentri sugli aspetti che sia possibile considerare attraverso la rete costituita da utenti, prodotti e recensioni, questo capitolo presenta comunque una breve analisi di tale rete poiché può essere utile ad analizzare il dataset da un punto di vista descrittivo.
+
+\vspace{3ex}
+
+Con un dataset di recensioni è possibile costruire tre diverse tipologie di rete:
+
+\begin{itemize}
+	\item prodotti e utenti nella stessa rete, collegati attraverso le recensioni
+	\item rete di soli prodotti, collegati tramite similarità
+	\item rete di soli utenti, collegati tramite similarità
+\end{itemize}
+
+Le due reti che considerano le similarità di prodotti o utenti non sono particolarmente semplici da costruire; esse richiedono che venga definito il concetto stesso di similarità. Ad esempio, prodotti simili potrebbero essere quelli che sono recensiti dai medesimi utenti ed analogamente accade per gli utenti che recensiscono gli stessi prodotti. Questo tipo di relazione potrebbe essere utilizzata per definire delle categorie di utenti o prodotti attraverso algoritmi di \textit{clustering} che andrebbero successivamente interpretati sui metadati contenuti nei nodi, prodotti o utenti che siano. Poiché nel dataset utilizzato mancano questo tipo di informazioni, si è pensato potesse essere poco significativo costruire questi tipi di reti.
+
+Al contrario, ci si è concentrati sulla prima alternativa che è direttamente estraibile dal dataset e consente di carpire se le recensioni coinvolgono omogeneamente diversi prodotti o si suddividono in diverse componenti connesse o cluster.
+
+
+
 \subsection{Struttura della rete}
 
-\subsection{Grado dei nodi}
+Per generare la rete ci si è affidati alla libreria Python \texttt{NetworkX} \cite{site:networkx}, che consente di generare, modificare e analizzare grafi anche di natura complessa. Per quanto riguarda la parte di visualizzazione si è invece utilizzato il software Cytoscape, che la libreria Python stessa suggerisce per la visualizzazione di reti molto grosse.
 
-\subsection{Misure di centralità ?}
+La rete è stata generata dal \texttt{pandas DataFrame}, considerando le colonne \texttt{userID} e \texttt{productID} per rappresentare rispettivamente i nodi sorgenti e i nodi target. Ciò significa che si è creata una rete i cui nodi rappresentassero alternativamente utenti o prodotti, nella quale i primi hanno sempre archi diretti verso i secondi: le recensioni. Si è quindi tratto un grafo orientato nel quale i nodi degli utenti hanno solamente archi uscenti e i nodi dei prodotti solo archi entranti. Ciò è particolarmente utile per l'analisi di \textit{in} e \textit{out degree} che si vedrà nella sezione successiva numero \ref{sec:nodes-degree}.
+
+Si è ottenuta quindi una rete composta da \textbf{62.420 nodi} (utenti + prodotti) e \textbf{278.677 archi} (recensioni), quest'ultimi pesati sul \texttt{rating} delle recensioni stesse. Purtroppo una rete così grossa è particolarmente difficile da mostrare correttamente a video anche con Cytoscape, come è possibile notare nell'immagine \ref{fig:cyto-net-1}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.9]{images/03_01_cyto_net_1.png}
+	\caption[Rete di utenti e prodotti, collegati tramite recensioni]{Rete di utenti e prodotti, collegati tramite recensioni}
+	\label{fig:cyto-net-1}
+\end{figure}
+
+É facilmente possibile notare, per quanto sia complessa, che la rete è composta da un'unica grande componente connessa nella quale la maggior parte dei prodotti e degli utenti sono fortemente interconnessi senza apparenti raggruppamenti.
+
+Tuttavia è interessante notare che dall'agglomerato centrale si sviluppano due fenomeni interessanti: alcuni nodi appaiono separati esternamente dal resto del gruppo, come fossero elementi con la voglia di distinguersi dal resto. É il caso ad esempio di quanto accada in figura \ref{fig:cyto-net-2}, che analizza la zona alta destra della rete. Queste due \textit{spike} esterne alla rete sono rispettivamente un prodotto e un utente, come si può notare dalla direzionalità degli archi che li coinvolgono. Purtroppo non è dato sapere se questi vengano posizionati così da Cytoscape perché rappresentano effettivamente dei casi particolari, o solo per una pura casualità.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.5]{images/03_02_cyto_net_2.png}
+	\caption[Esempio di nodi separati dal raggruppamento centrale]{Esempio di nodi separati dal raggruppamento centrale}
+	\label{fig:cyto-net-2}
+\end{figure}
+
+\vspace{5ex}
+
+Di maggiore interesse appare invece la parte bassa della rete, rappresentata in figura \ref{fig:cyto-net-3}. In questa zona sembra comparire una sorta di cluster vero e proprio, al suo interno fortemente connesso ma collegato alla rete "principale" solo attraverso pochi nodi che svolgono il ruolo di ponte: 3 utenti e 1 prodotto. Nonostante non ci è dato sapere cosa possa rappresentare tale cluster, vista la presenza di alcuni utenti e prodotti con un alto numero di recensioni ma isolati dal resto della rete si potrebbe dedurre si tratti del mercato di un paio d'articoli particolarmente di nicchia, probabilmente provenienti da mercati stranieri o destinati ad un tipo di vendita fra gruppi ristretti di persone con particolari accordi.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.36]{images/03_03_cyto_net_3.png}
+	\caption[Cluster inferiore della rete]{Cluster inferiore della rete}
+	\label{fig:cyto-net-3}
+\end{figure}
+
+
+
+\subsection{Grado dei nodi}
+\label{sec:nodes-degree}
+
+Il principale motivo per cui si è deciso di costruire la rete associata al dominio in esame è l'analisi del grado dei nodi facenti parte della rete. Per come essa è stata costruita, l'\textit{out-degree} di un nodo rappresenta le recensioni fatte da un utente, mentre l'\textit{in-degree} costituisce quelle ricevute da un prodotto. É chiaro che ogni nodo avrà sempre uno dei due gradi uguale a zero.
+
+Particolarmente rilevante è quindi la distribuzione dei due gradi, al fine di comprendere se all'interno del dataset compaiano utenti e prodotti con un eguale distribuzione di recensioni, piuttosto che invece utenti particolarmente attivi o prodotti molto popolari. Si fa inoltre notare che, come accennato nella sezione \ref{sec:dataset}, il grado minimo di ciascun nodo è pari a cinque poiché il dataset è ottenuto attraverso l'estrazione di un sottografo 5-induttivo da una rete molto più grande.
+
+Osservando in figura \ref{fig:out-degree} ed escludendo dall'analisi i nodi con \textit{out-degree} pari a zero (cioè i prodotti), è possibile notare che nonostante la media di recensioni per utente sia pari a 7 (vedere sezione \ref{sec:dimensions}), in realtà il grado per ciascun nodo è distribuito in maniera piuttosto varia con una frequenza che diminuisce all'aumentare del grado. Solo 6 sono gli utenti con più di 60 recensioni, di cui uno ne conta ben 136. Eccoli:
+
+\begin{verbatim}
+[('A2J4XMWKR8PPD0', 136),('A2GA55P7WGHJCP', 76),('A2KBV88FL48CFS', 69),
+('AENH50GW3OKDA', 68),('A2V5R832QCSOMX', 62),('AVUJP7Z6BNT11', 61)]
+\end{verbatim}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.7]{images/03_04_out_degree.png}
+	\caption[Distribuzione dell'\textit{out-degree} per gli utenti]{Distribuzione dell'\textit{out-degree} per gli utenti}
+	\label{fig:out-degree}
+\end{figure}
+
+Anche considerando il grafico della distribuzione degli \textit{in-degree} (figura \ref{fig:in-degree}) si nota che molti prodotti si discostano dalla media di 12 recensioni precedentemente calcolata e addirittura esistono all'interno del dataset prodotti particolarmente popolari con più di 200 recensioni. Sebbene sia un numero elevato, probabilmente non è necessario affinché questi possano definirsi \textit{hub}, vista la presenza nella rete di ben 23.033 prodotti per più di 250.000 recensioni. Di seguito i quattro prodotti più popolari:
+
+\begin{verbatim}
+[('B005LERHD8', 441),('B005GYGD7O', 286),('B008WYDP1C', 249),
+('B0058XIMMM', 241),('B00CKGB85I', 225),('B007RD9DS8', 217)]
+\end{verbatim}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{images/03_04_in_degree.png}
+\caption[Distribuzione dell'\textit{in-degree} per gli utenti]{Distribuzione dell'\textit{in-degree} per gli utenti}
+\label{fig:in-degree}
+\end{figure}
+
+\subsection{??? Misure di centralità}
 
 
 
