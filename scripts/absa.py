@@ -191,7 +191,7 @@ def posTagging(input):
     outputPost={}
     for key,value in input.items():
         outputPost[key] = nltk.pos_tag(nltk.word_tokenize(value))
-        outputPost[key] = filter(lambda x: not x[0] in punctuation, outputPost[key])
+        outputPost[key] = list(filter(lambda x: not x[0] in punctuation, outputPost[key]))
 
     for key,value in outputPost.items():
         print(key,' ',value)
