@@ -286,7 +286,9 @@ def identifyOpinion(review, aspect, tokenized):
         ng=0
         n=0
         for key,value in lemmatized.items():
-            if(aspect in value):
+            # check if lemmatized aspect is a subset of lemmatized sentence
+            # or if aspect is present in sentece
+            if(set(aspect.split(' ')) <= set(value) or aspect in tokenized[key]):
                 count=count+1
                 a=TextBlob(tokenized[key])
                 output.setdefault(aspect, {
