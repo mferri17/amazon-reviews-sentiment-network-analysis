@@ -697,13 +697,54 @@ text_clf = Pipeline([
 \section{Aspect Based Sentiment Analysis}
 \label{sec:absa}
 
+
+Se nel capitolo precedente è stata presentata una forma di sentiment analysis basata su un modello di apprendimento supervisionato, non è sempre ovvio che nel dataset da analizzare sia presente il target su cui effettuare la classificazione. Inoltre, l'avanzamento della ricerca nell'ambito del Natural Language Processing (NLP) ha permesso ai ricercatori di addestrare svariati modelli negli anni e quindi apprendere e pubblicare dei vocabolari standard che permettono, sia attraverso un'analisi morfologica che semantica, di valutare il sentiment di un insieme di parole.
+
+In questo contesto nasce l'aspect based sentiment analysis (ABSA) il cui scopo è l'estrazione degli \textbf{aspetti} da una base testuale, cioè dei concetti descritti al suo interno, e la loro conseguente classificazione come positivamente o negativamente valutati dal testo attraverso l'utilizzo di vocabolari consolidati nel tempo. Ciò consente a chi analizza un corpus di ottenere una visione d'insieme non solo relativa all'opinione generica dei propri utenti, ma anche riguardo specifici aspetti (caratteristiche del prodotto, ad esempio). Questo permette alle aziende di migliorare ulteriormente il proprio servizio e porsi ovviamente su una più alta fascia di mercato.
+
+
+
+\subsection{Strumenti}
+
+L'aspect based sentiment analysis è un argomento meno approfondito allo stato dell'arte attuale rispetto agli argomenti precedenti trattati. Sebbene esistano numerosi articoli che ne parlano e anche alcuni servizi a pagamento che consentono di fare ABSA, è molto più complicato - se non impossibile - trovare delle librerie open source che permettano di eseguire rapidamente l'intera pipeline necessaria a questo tipo di analisi, come invece è possibile fare per il sentiment prediction supervisionato.
+
+In funzione di queste considerazioni, si è deciso di valutare l'opportunità di riprendere un progetto open source scritto in Python e già avviato su GitHub, per ri-adattarlo alle esigenze di questo studio \cite{site:jonm01-absa}. Dopo qualche esperimento, l'utilizzo di tale progetto si è rivelato la scelta adatta a soddisfare i requisiti richiesti per implementare correttamente aspect based sentiment analysis.
+
+
+
 \subsection{Elaborazione del testo}
+
+Nonostante sia stato accennato che questa tecnica di analisi sia fondamentalmente diversa dalla precedente, bisogna notare che la trattazione preliminare dei testi avviene in modo totalmente analogo. I principi spiegati nel capitolo \ref{sec:text-elab} rimangono validi e devono solamente essere riadattati per adeguarsi alle successive fasi di analisi.
+
+Nello specifico, le operazioni che si è scelto di effettuare sull'input sono le seguenti:
+
+\begin{itemize}
+	\item rimozione stop word
+	\item suddivisione in frasi
+	\item rimozione delle domande: poco significative o sarcastiche
+	\item POS tagging (approfondito nella sezione successiva)
+	\item lemmatization, con il supporto del precedente POS tagging
+\end{itemize}
+
+
+\subsubsection{POS tagging}
+
+Acronimo di \textit{part-of-speech tagging}, consiste nell'assegnazione di un tag per ciascuna parola del testo, al fine di identificare la categoria grammaticale a cui appartiene. Linguisticamente parlando, il termine \textbf{parte del discorso} definisce le categorie di parole atte a formare le frasi di una lingua, definite dalla disciplina chiamata \textbf{morfologia}. Nella lingua inglese sono distinte in: nomi, aggettivi, verbi, proposizioni, avverbi, pronomi, congiunzioni e interiezioni.
+
+Il processo di POS tagging, quindi, analizza una frase e si occupa di assegnare il ruolo di nome, aggettivo, verbo, etc. ad ogni parola che la compone. Tale operazione è svolta nel codice attraverso l'utilizzo della funzione \texttt{pos\_tag} della libreria \texttt{NLTK}, precedentemente utilizzata anche per le altre fasi dell'elaborazione testuale.
+
+
 
 \subsection{Estrazione degli aspetti}
 
+
+
 \subsection{Identificazione del sentiment}
 
+
+
 \subsection{Risultati}
+
 
 
 
@@ -751,6 +792,11 @@ Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \ci
 
 \section{Conclusioni}
 
+Lo studio è riuscito a dimostrare le innumerevoli possibilità di effettuare analisi sul dominio delle recensioni. Considerando sia l'elaborazione del linguaggio naturale che l'analisi sulla rete è possibile ottenere risultati molto importanti e anche piuttosto precisi sotto diversi aspetti, che possono sicuramente rappresentare un contributo fondamentale al miglioramento del business di un'azienda.
+
+In particolare, analizzare le recensioni di Amazon può essere utile sia ai venditori che al portale di e-commerce stesso per migliorare i propri servizi o sapere come ampliare l'offerta commerciale, curando magari gli aspetti più carenti. Con assoluta certezza si potrebbe appurare che parte del successo di Amazon è stato acquisito anche grazie ad analisi di questo tipo.
+
+I medesimi modelli possono essere facilmente riadattati a qualsiasi altro dominio preveda l'utilizzo di recensioni e sarebbe sicuramente curioso sapere quali dei principali colossi tech odierni abbiano sfruttato metodologie di sentiment analysis per scalare le vette di mercato. Allo stesso modo, uno sviluppo futuro potrebbe essere rappresentato dalla possibilità di comprendere se i metodi presentati sono ugualmente performanti anche sull'analisi dei commenti di un social network, per esempio.
 
 
 
