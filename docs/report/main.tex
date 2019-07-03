@@ -40,7 +40,7 @@
 	\includegraphics[scale = 0.75]{images/LogoBicocca.pdf}\\[1.0 cm]	% University Logo
 	\textsc{\LARGE Università degli studi di}\\[0.2 cm]
 	\textsc{\LARGE Milano-Bicocca}\\[2.0 cm]	% University Name
-	\textsc{\Large F1801Q127}\\[0.5 cm]				% Course Code
+	\textsc{\Large F1801Q104}\\[0.5 cm]				% Course Code
 	\textsc{\large Data Analytics}				% Course Name
 	\rule{\linewidth}{0.2 mm} \\[0.4 cm]
 	{ \huge \bfseries \thetitle}\\
@@ -317,11 +317,11 @@ Il principale motivo per cui si è deciso di costruire la rete associata al domi
 
 Particolarmente rilevante è quindi la distribuzione dei due gradi, al fine di comprendere se all'interno del dataset compaiano utenti e prodotti con un eguale distribuzione di recensioni, piuttosto che invece utenti particolarmente attivi o prodotti molto popolari. Si fa inoltre notare che, come accennato nella sezione \ref{sec:dataset}, il grado minimo di ciascun nodo è pari a cinque poiché il dataset è ottenuto attraverso l'estrazione di un sottografo 5-induttivo da una rete molto più grande.
 
-Osservando in figura \ref{fig:out-degree} ed escludendo dall'analisi i nodi con \textit{out-degree} pari a zero (cioè i prodotti), è possibile notare che nonostante la media di recensioni per utente sia pari a 7 (vedere sezione \ref{sec:dimensions}), in realtà il grado per ciascun nodo è distribuito in maniera piuttosto varia con una frequenza che diminuisce all'aumentare del grado. Solo 6 sono gli utenti con più di 60 recensioni, di cui uno ne conta ben 136. Eccoli:
+Osservando in figura \ref{fig:out-degree} ed escludendo dall'analisi i nodi con \textit{out-degree} pari a zero (cioè i prodotti), è possibile notare che nonostante la media di recensioni per utente sia pari a 7 (vedere sezione \ref{sec:dimensions}), in realtà il grado per ciascun nodo è distribuito in maniera piuttosto varia con una frequenza che diminuisce all'aumentare del grado. Solo sei sono gli utenti con più di 60 recensioni, di cui uno ne conta ben 136. Eccoli:
 
 \begin{verbatim}
 [('A2J4XMWKR8PPD0', 136),('A2GA55P7WGHJCP', 76),('A2KBV88FL48CFS', 69),
-('AENH50GW3OKDA', 68),('A2V5R832QCSOMX', 62),('AVUJP7Z6BNT11', 61)]
+ ('AENH50GW3OKDA', 68),('A2V5R832QCSOMX', 62),('AVUJP7Z6BNT11', 61)]
 \end{verbatim}
 
 \begin{figure}[H]
@@ -335,13 +335,13 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 
 \begin{verbatim}
 [('B005LERHD8', 441),('B005GYGD7O', 286),('B008WYDP1C', 249),
-('B0058XIMMM', 241),('B00CKGB85I', 225),('B007RD9DS8', 217)]
+ ('B0058XIMMM', 241),('B00CKGB85I', 225),('B007RD9DS8', 217)]
 \end{verbatim}
 
 \begin{figure}[H]
 \centering
 \includegraphics[scale=0.7]{images/03_04_in_degree.png}
-\caption[Distribuzione dell'\textit{in-degree} per gli utenti]{Distribuzione dell'\textit{in-degree} per gli utenti}
+\caption[Distribuzione dell'\textit{in-degree} per i prodotti]{Distribuzione dell'\textit{in-degree} per i prodotti}
 \label{fig:in-degree}
 \end{figure}
 
@@ -354,6 +354,7 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 
 
 \section{Sentiment Analysis}
+
 
 
 \subsection{Assunzioni}
