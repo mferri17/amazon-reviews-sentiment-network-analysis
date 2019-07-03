@@ -382,6 +382,7 @@ A seguito della binarizzazione si sono quindi ottenute 221.597 e 57.080 recensio
 
 
 \subsection{Elaborazione del testo}
+\label{sec:text-elab}
 
 Affinché qualsiasi operazione di analisi testuale possa essere portata a termine con successo è necessario che i testi considerati vengano sottoposti a una fase di pre-processing davvero fondamentale. Questa si compone di diversi step, alcuni dei quali facoltativi, che hanno l'obiettivo di suddividere il testo in parole e successivamente normalizzarle sulla base di scelte operative o regole linguistiche.
 
@@ -495,17 +496,197 @@ Questo è il motivo per cui molte parole, seppur sembrerebbe logico inserirle ne
 \section{Sentiment Prediction}
 \label{sec:sentiment-prediction}
 
+
+Quando si ha a che fare con un dataset di testi su cui si vuole fare sentiment analysis, uno degli aspetti più interessanti è la possibilità di predire il sentiment di nuove recensioni attraverso l'analisi del linguaggio naturale. Ciò è possibile attraverso la classificazione delle parole utilizzate in sentiment positivo e negativo; tale operazione può essere eseguita attraverso l'utilizzo di un vocabolario linguistico, oppure tramite apprendimento di un dizionario dal testo purché il dataset metta a disposizione una variabile target su cui fare apprendimento supervisionato.
+
+Quest'ultimo caso rappresenta perfettamente la situazione che si sta tentando di analizzare, ed è per questo che si è scelto di verificare se un algoritmo di Machine Learning di apprendimento supervisionato sia in grado di ottenere buoni risultati in termini di analisi del linguaggio naturale.
+
+In questo capitolo vengono quindi descritte le fasi generiche necessarie ad effettuare supervised sentiment prediction, implementate poi attraverso l'utilizzo della libreria \texttt{scikit-learn} \cite{site:sklearn}, facilmente utilizzabile e ampiamente diffusa per la fruizione di svariati modelli di Machine Learning.
+
+
+
+\subsection{Bag of words}
+
+
+In ogni occasione in cui si lavora con il testo, che sia essa per apprendimento o anche semplicemente per effettuare una ricerca, è necessario che questo venga memorizzato in una modalità che lo renda facilmente rappresentabile e recuperabile.
+
+Uno dei modelli più utilizzati per ottenere questo obiettivo è il cosiddetto bag of words, implementato da \texttt{scikit-learn} attraverso la classe \texttt{CountVectorizer}. Ciò consiste nella rappresentazione del testo in parole, ad ognuna delle quali viene associato un identificativo; successivamente, di ciascuna parola viene salvata la lista di \textbf{occorrenze} nei documenti che costituiscono il dataset (i record, ad esempio). Così facendo è possibile ottenere di fatto una matrice molto grande e di natura sparsa, contenente le informazioni necessarie a rappresentare il testo per parole, d'ora in poi chiamate più correttamente \textbf{termini}.
+
+
+\pagebreak
+
+
 \subsection{Pesatura dei termini (TF-IDF)}
 
-\subsection{Termini più rilevanti}
+Suddividendo il testo originale in quello che è stata definita bag of words, si ottiene di fatto un \textbf{dizionario} rappresentativo della base di dati testuale. Nonostante sia stato precedentemente detto che per ogni termine si memorizzino le occorrenze nei documenti del dataset, sarebbe più corretto dire che di questi dovrebbero essere salvate le \textbf{frequenze}, opportunamente normalizzate, che rappresentano una più accurata modalità di rappresentazione dell'importanza di ciascuna parola nel testo.
+
+Un modello molto famoso e utilizzato oggi, specialmente nell'ambito dell'Information Retrieval, è conosciuto con il nome di \textbf{TF-IDF (term frequency - inverse document frequency)}. Tale statistica è in grado di computare l'importanza di un termine per ciascun documento presente in un corpus (collezione di testi), sia facendo riferimento alle occorrenze nel documento stesso che alla popolarità della parola nell'intera collezione. Il peso di un termine $i$ nel documento $j$ si esprime con la formula sottostante, in cui il primo fattore del prodotto è la TF (normalizzata) e il secondo invece la IDF ($N$ è il numero di documenti, mentre \(d_{fi}\) rappresenta il numero di documenti che contengono il termine considerato).
+
+\[ w_{ij} = \frac{tf_{i}}{\max tf_{j}} \times log\frac{N}{d_{fi}} \]
+
+Il concetto di TF-IDF è facilmente utilizzabile da \texttt{scikit-learn} attraverso la classe \texttt{TfidfTransformer} per ricavare dalla semplice bag of words una matrice computata secondo TF-IDF. Questo è successivamente utilizzato da un modello di classificazione a piacere per effettuare l'apprendimento supervisionato.
+
+La libreria permette inoltre di accorpare le funzionalità di \texttt{CountVectorizer} e \texttt{TfidfTransformer} nell'utilizzo di un'unica classe: \texttt{TfidfVectorizer}. Tale classe è inoltre in grado di effettuare la pre-elaborazione del testo esplicata nel capitolo \ref{sec:text-elab}, previa configurazione con appositi parametri dall'utilizzo estremamente facile. 
+
+\vspace{6ex}
+
+\subsubsection{Termini più rilevanti}
+
+Applicando i concetti appena descritti al dataset in esame si ottiene il peso di ciascun termine presente nel testo delle recensioni. Per completezza è interessante notare quali sono i termini che TF-IDF considera più rilevanti dopo la computazione del dizionario. Questi sono mostrati nella tabella \ref{tab:term-weights}
+
+\begin{table}[H]
+	\caption{Termini più rilevanti secondo TF-IDF}\label{tab:term-weights}
+	\centering
+	\begin{tabular}{|l|l|l|}
+		\hline
+		ID & Termine & Peso \\
+		\hline
+		4121 & but & 0.040886 \\ 
+		19248 & not & 0.037178 \\ 
+		25748 & size & 0.033456 \\ 
+		31509 & veri & 0.032994 \\ 
+		10467 & fit & 0.032224 \\ 
+		16499 & look & 0.030117 \\ 
+		16151 & like & 0.029839 \\ 
+		32213 & wear & 0.029403 \\ 
+		25314 & shoe & 0.027903 \\ 
+		16656 & love & 0.025427 \\ 
+		\hline
+	\end{tabular}
+\end{table}
+
+
 
 \subsection{Modelli di predizione}
 
+Appreso il dizionario del testo, è possibile utilizzarlo come input di un classificatore insieme alla colonna del target per apprendere il modello di Machine Learning. Lo scopo è trovare una correlazione fra il testo di una recensione e il suo sentiment. \\
+É possibile utilizzare lo stesso dizionario per svariati modelli, ampiamente configurabili. Ai fini dell'esperimento ne sono stati provati tre: Random Forest, Naive Bayes e SVM. Vengono quindi presentate le performance ottenute da ciascuno, considerando una separazione fra training e test set del 70-30\% con rimescolamento.
+
+Verranno riportate per ciascun modello tutte le metriche valutate. Mentre la matrice di confusione, così come ROC e AUROC sono ottenute da una singola esecuzione, le metriche di accuracy, recall, precision e F1 sono invece ricavate attraverso l'esecuzione di una 10-fold cross validation.
+
+
 \subsubsection{Random Forest}
+
+Random Forest è dei tre il modello con le peggiori performance, qui riportate. Bisongna considerare che rispetto agli altri modelli è anche decisamente più lento nell'apprendimento (nell'ordine di un paio di minuti, contro una decina di secondi per NB e SVM).
+
+\begin{verbatim}
+RandomForestClassifier(
+   bootstrap=True, class_weight=None, criterion='gini',
+   max_depth=None, max_features='auto', max_leaf_nodes=None,
+   min_impurity_decrease=0.0, min_impurity_split=None,
+   min_samples_leaf=1, min_samples_split=2,
+   min_weight_fraction_leaf=0.0, n_estimators=5, warm_start=False)
+\end{verbatim}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/05_00_rf_confmat.png}
+	\caption[Random Forest - Matrice di confusione]{Random Forest - Matrice di confusione}
+	\label{fig:rf-cm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{images/05_00_rf_auroc.png}
+\caption[Random Forest - ROC e AUC]{Random Forest - ROC e AUC}
+\label{fig:rf-auroc}
+\end{figure}
+
+\begin{verbatim}
+ACCURACY    10-FOLD CROSS VALIDATION:    0.7327 (std dev 0.005981)
+PRECISION   10-FOLD CROSS VALIDATION:    0.7348 (std dev 0.009141)
+RECALL      10-FOLD CROSS VALIDATION:    0.7348 (std dev 0.008359)
+F1          10-FOLD CROSS VALIDATION:    0.7279 (std dev 0.003274)
+\end{verbatim}
+
+\clearpage
+
 \subsubsection{Naive Bayes}
-\subsubsection{SVM}
+
+\begin{verbatim}
+MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+\end{verbatim}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/05_01_bayes_confmat.png}
+	\caption[Naive Bayes - Matrice di confusione]{Naive Bayes - Matrice di confusione}
+	\label{fig:bayes-cm}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/05_01_bayes_auroc.png}
+	\caption[Naive Bayes - ROC e AUC]{Naive Bayes - ROC e AUC}
+	\label{fig:bayes-auroc}
+\end{figure}
+
+\begin{verbatim}
+ACCURACY    10-FOLD CROSS VALIDATION:    0.8015 (std dev 0.007751)
+PRECISION   10-FOLD CROSS VALIDATION:    0.8116 (std dev 0.014807)
+RECALL      10-FOLD CROSS VALIDATION:    0.7858 (std dev 0.007262)
+F1          10-FOLD CROSS VALIDATION:    0.7984 (std dev 0.006062)
+\end{verbatim}
+
+\clearpage
+
+\subsubsection{Support Vector Machines}
+
+\begin{verbatim}
+SGDClassifier(
+   alpha=0.0001, average=False, class_weight=None,
+   early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+   l1_ratio=0.15, learning_rate='optimal', loss='log', max_iter=1000,
+   n_iter_no_change=5, n_jobs=None, penalty='l2', power_t=0.5,
+   random_state=None, shuffle=True, tol=0.001,
+   validation_fraction=0.1, verbose=0, warm_start=False)
+\end{verbatim}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/05_02_svm_confmat.png}
+	\caption[SVM - Matrice di confusione]{SVM - Matrice di confusione}
+	\label{fig:svm-cm}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/05_02_svm_auroc.png}
+	\caption[SVM - ROC e AUC]{SVM - ROC e AUC}
+	\label{fig:svm-auroc}
+\end{figure}
+
+\begin{verbatim}
+ACCURACY    10-FOLD CROSS VALIDATION:    0.8290 (std dev 0.005217)
+PRECISION   10-FOLD CROSS VALIDATION:    0.8371 (std dev 0.009706)
+RECALL      10-FOLD CROSS VALIDATION:    0.8176 (std dev 0.008412)
+F1          10-FOLD CROSS VALIDATION:    0.8273 (std dev 0.004608)
+\end{verbatim}
+
+
+\subsubsection{Scelta del modello}
+
+Come mostrato, Naive Bayes e SVM ottengono performance molto simili. Il primo è più rapido nell'apprendimento, ma il secondo ottiene un paio di punti percentuali in più su tutte le metriche. Per questo motivo, si è scelto di utilizzare SVM per le predizioni future.
+
+
 
 \subsection{Pipeline}
+
+Scelta la modalità di elaborazione del testo e il classificatore più adeguato per il dominio di riferimento, \texttt{scikit-learn} consente di effettuare predizioni sui nuovi input. Chiaramente non è necessario che vengano effettuate ogni volta le operazioni preliminari di apprendimento sull'intero dataset, ma è sufficiente sfruttare il modello appreso a cui fornire il nuovo input, adeguatamente pre-processato. Per agevolare il processo, la classe \texttt{Pipeline} fornisce al programmatore la possibilità di definire una sequenza di operazioni necessaria sia per l'apprendimento che per la predizione su nuovi input.
+
+É sufficiente quindi salvare il modello su un file persistente per poterlo riutilizzare successivamente. Questa è anche la tecnica adottata per il funzionamento della Web demo che verrà presentata nel capitolo \ref{sec:ui}. Per completezza, si riporta qui anche il codice della pipeline scelta per effettuare i nostri task di sentiment prediction.
+
+\begin{verbatim}
+text_clf = Pipeline([
+     ('vect', TfidfVectorizer(
+                  use_idf = True,
+                  strip_accents = 'ascii',
+                  stop_words = stopset,
+                  lowercase = True)),
+     ('tfidf', TfidfTransformer()),
+     ('clf', SGDClassifier(loss='log')),
+])
+\end{verbatim}
 
 
 
