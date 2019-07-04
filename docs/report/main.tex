@@ -292,13 +292,13 @@ Per generare la rete ci si è affidati alla libreria Python \texttt{NetworkX} \c
 
 La rete è stata generata dal \texttt{pandas DataFrame}, considerando le colonne \texttt{userID} e \texttt{productID} per rappresentare rispettivamente i nodi sorgenti e i nodi target. Ciò significa che si è creata una rete i cui nodi rappresentassero alternativamente utenti o prodotti, nella quale i primi hanno sempre archi diretti verso i secondi: le recensioni. Si è quindi tratto un grafo orientato nel quale i nodi degli utenti hanno solamente archi uscenti e i nodi dei prodotti solo archi entranti. Ciò è particolarmente utile per l'analisi di \textit{in} e \textit{out degree} che si vedrà nella sezione successiva numero \ref{sec:nodes-degree}.
 
-Si è ottenuta quindi una rete composta da \textbf{62.420 nodi} (utenti + prodotti) e \textbf{278.677 archi} (recensioni), quest'ultimi pesati sul \texttt{rating} delle recensioni stesse. Purtroppo una rete così grossa è particolarmente difficile da mostrare correttamente a video anche con Cytoscape, come è possibile notare nell'immagine \ref{fig:cyto-net-1}.
+Si è ottenuta quindi una rete composta da \textbf{62.420 nodi} (utenti + prodotti) e \textbf{278.677 archi} (recensioni), quest'ultimi pesati sul \texttt{rating} delle recensioni stesse. Purtroppo una rete così grossa è particolarmente difficile da mostrare correttamente a video anche con Cytoscape, come è possibile notare nell'immagine \ref{fig:cyto-net-full}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.9]{images/03_01_cyto_net_1.png}
 	\caption[Rete di utenti e prodotti, collegati tramite recensioni]{Rete di utenti e prodotti, collegati tramite recensioni}
-	\label{fig:cyto-net-1}
+	\label{fig:cyto-net-full}
 \end{figure}
 
 É facilmente possibile notare, per quanto sia complessa, che la rete è composta da un'unica grande componente connessa nella quale la maggior parte dei prodotti e degli utenti sono fortemente interconnessi senza apparenti raggruppamenti.
@@ -849,7 +849,7 @@ Tale libreria fornisce un pacchetto \texttt{collab} appositamente pensato per im
 
 Nonostante la semplicità di utilizzo di \texttt{fastai} per la creazione del modello, la libreria sembra essere ancora in fase di sviluppo e manca di funzionalità avanzate per la visualizzazione di molte metriche di valutazione. Pertanto, non è particolarmente facile ottenere metriche aggiuntive rispetto alla \textit{loss} fornita dalla libreria in seguito all'apprendimento con politica 1-cycle \cite{site:1cycle}.
 
-A scopo puramente esemplificativo, viene innanzitutto mostrat sul piano cartesiano in figura \ref{fig:embedding-chart} il posizionamento degli embedding relativi ad alcuni prodotti, per comprendere meglio cosa significhi rappresentare un'entità in uno spazio vettoriale. Prodotti spazialmente vicini dovrebbero essere classificati dal modello di collaborative filtering come fossero prodotti simili.
+A scopo puramente esemplificativo, viene innanzitutto mostrato sul piano cartesiano in figura \ref{fig:embedding-chart} il posizionamento degli embedding relativi ad alcuni prodotti, per comprendere meglio cosa significhi rappresentare un'entità in uno spazio vettoriale. Prodotti spazialmente vicini dovrebbero essere classificati dal modello di collaborative filtering come fossero prodotti simili.
 
 \begin{figure}[H]
 	\centering
@@ -857,6 +857,9 @@ A scopo puramente esemplificativo, viene innanzitutto mostrat sul piano cartesia
 	\caption[Embedding di alcuni prodotti]{Embedding di alcuni prodotti}
 	\label{fig:embedding-chart}
 \end{figure}
+
+
+\subsubsection{Performance}
 
 Per quanto riguarda invece la parte di valutazione delle performance, i valori rilevati per il modello di apprendimento sono riportati nella tabella \ref{tab:collab-dot-loss}. Questi si riferiscono alla fase di apprendimento svolta su 5 cicli con il metodo del prodotto scalare per il calcolo della similarità. Gli embedding considerati sono di 20 elementi ciascuno e la divisione fra training e test set è di 70-30\%.
 
@@ -887,9 +890,9 @@ La colonna \texttt{train\_loss} mostra la \textit{loss} per il training set ment
 
 É possibile notare che la \textit{loss} sia coerente fra training e test set, pertanto si potrebbe dedurre che l'apprendimento sia svolto correttamente. Tuttavia, i corrispondenti valori discendono molto gradualmente fra un ciclo e l'altro, come se il modello non riuscisse a migliorarsi molto dopo la prima epoca. Per tentare di migliorare l'apprendimento si sono provate svariate combinazioni di parametri, sia relativamente al numero di elementi costituenti gli embedding e sia per cercare di ottimizzare la regressione, variando i valori di \textit{learning rate} e \textit{weight decay}. Tutti i tentativi hanno prodotto risultati del tutto paragonabili e si è evinto che lo scarto quadratico medio convergesse a 2.07 dopo il quindicesimo ciclo.
 
-Si fa inoltre notare che, a differenza di quanto operato per la parte di sentiment analysis, i modelli di collaborative filtering non ottengono particolari miglioramenti lavorando su problemi binari, pertanto si è deciso di addestrare il modello sul problema multiclasse. Mostrando graficamente le predizioni effettuate su un campione del dataset a seguito del training, si è scoperto tuttavia un comportamento molto strano; come mostrato in figura \ref{fig:collab-preds}, si è evinto che il modello classificasse il \texttt{rating} intorno al valore 3 per qualsiasi coppia di utente e prodotto considerata.
+Si fa inoltre notare che, a differenza di quanto operato per la parte di sentiment analysis, i modelli di collaborative filtering non ottengono particolari miglioramenti lavorando su problemi binari, pertanto si è deciso di addestrare il modello sul problema multiclasse. Mostrando graficamente le predizioni effettuate su un campione del dataset a seguito del training, si è scoperto tuttavia un comportamento molto strano; come mostrato in figura \ref{fig:collab-preds}, si è evinto che il modello classificasse il \texttt{rating} intorno al valore tre per qualsiasi coppia di utente e prodotto considerata.
 
-Si è quindi scelto di effettuare un'operazione di downsampling sul dataset per tentare di bilanciare la classe target, ma la situazione si è quindi rivelata addirittura peggiore: la \textit{loss} calcolata era minore, ma le predizioni giacevano tutte in un intorno ancor più ristretto del valore 3.
+Si è quindi scelto di effettuare un'operazione di downsampling sul dataset per tentare di bilanciare la classe target, ma la situazione si è quindi rivelata addirittura peggiore: la \textit{loss} calcolata era minore, ma le predizioni giacevano tutte in un intorno ancor più ristretto del valore tre.
 
 Per risalire alla causa del problema si è pensato che l'errore potesse risidere nelle modalità di apprendimento del modello, quindi si è deciso di testare come controprova il medesimo codice sorgente per l'implementazione di collaborative filtering su un dataset spesso utilizzato come esempio: quello di Movielens, contenente un totale di 100.000 recensioni di film. Il risultato, mostrato in figura \ref{fig:collab-preds-movielens}, presenta una distribuzione delle predizioni nettamente migliore, sull'intera scala di valori ammissibili, riuscendo pertanto a dimostrare la sensatezza del modello implementato.
 
@@ -907,17 +910,48 @@ Per risalire alla causa del problema si è pensato che l'errore potesse risidere
 \label{fig:collab-preds-movielens}
 \end{figure}
 
-In funzione di queste considerazioni si è pensato che il problema potesse risiedere nel dataset, e non nel modello. Si è quindi deciso di effettuare un'analisi di comparazione del dataset di Amazon con quello di Movielens, sfruttando la rete creata nel capitolo \ref{sec:network-anal}. Considerata la distribuzione delle predizioni intorno al valore 3, che rappresenta anche il valore medio della variabile \texttt{rating}, si è pensato che il problema potesse essere rappresentato la mancanza nel dataset di un sufficiente numero di utenti o prodotti che condividessero recensioni. Considerate ad esempio le possibili coppie di utenti, è fondamentale che queste abbiano in comune un certo numero di recensioni sugli stessi prodotti affinché collaborative filtering sia in grado di considerare due utenti simili e pertanto suggerire nuovi prodotti da acquistare. Se questa assunzione viene a mancare all'interno del dataset, allora tale modello di raccomandazione non può algoritmicamente funzionare.
+\subsubsection{Coefficiente topologico}
+
+In funzione di queste considerazioni si è pensato che il problema potesse risiedere nel dataset, e non nel modello. Si è quindi deciso di effettuare un'analisi di comparazione fra il dataset di Amazon e quello di Movielens, sfruttando la rete creata nel capitolo \ref{sec:network-anal}. Considerata la distribuzione delle predizioni intorno a tre, che rappresenta anche il valore medio della variabile \texttt{rating}, si è pensato che il problema potesse essere rappresentato la mancanza nel dataset di un sufficiente numero di utenti o prodotti che condividessero recensioni. Considerate ad esempio tutte le possibili coppie di utenti, è fondamentale che alcune di queste abbiano in comune un certo numero di recensioni sui medesimi prodotti, affinché collaborative filtering sia in grado di considerare due utenti simili e pertanto suggerire ad alcuni di essi nuovi prodotti da acquistare. Se questa assunzione viene a mancare all'interno del dataset, allora tale modello di raccomandazione non può algoritmicamente funzionare.
+
+Per analizzare la correlazione effettivamente presente fra utenti nel dataset si è scelto di valutare sulla rete una metrica che prende il nome di \textbf{coefficiente topologico} \cite{site:topol-coeff}. Tale parametro è calcolato per ogni nodo $n$ con la formula che segue, e in un dominio [0, 1] esprime una misura relativa alla quantità di vicini che ciascun nodo $n$ condivide con gli altri nodi del grafo. 
+
+\[T_n = \frac{avg(J(n,m))}{k_n} \]
+
+Mentre $k_n$ è il grado del nodo (il numero dei suoi vicini), $J(n,m)$ rappresenta il numero di vicini in comune fra i nodi $n$ ed $m$, ed è calcolato su tutti i nodi $m$ che condividono almeno un vicino con $n$.
+
+Nel caso in esame è pertanto utile per considerare il numero di recensioni ai medesimi prodotti che condividono diversi utenti; in modo analogo, il ragionamento applicato ad un prodotto determina se quest'ultimo condivida un buon numero di recensori con altri articoli nel dataset. Se il coefficiente topologico di un nodo è alto, significa che tale utente o prodotto è un buon candidato per l'algoritmo di collaborative filtering poiché sarà possibile effettuare sul nodo delle ottime predizioni; viceversa, sarebbe impossibile poter effettuare una qualsiasi predizione corretta e pertanto fornire un suggerimento valido.
+
+Analizzando la distribuzione dei coefficienti topologici sul grafo ottenuto dal dataset delle recensioni Amazon (figura \ref{fig:cyto-net-full}), si evince quindi il motivo per cui collaborative filtering non funziona su tale insieme di recensioni. Come si osserva in figura \ref{fig:topol-coeff-amazon}, la maggior parte dei nodi della rete (utenti o prodotti che siano) possiede un coefficiente inferiore a 0.25. Ciò significa che quasi tutti i nodi non condividono i propri vicini con un buon numero di altri nodi nel grafo; infatti, solamente 11 elementi sul totale presentano un coefficiente topologico superiore a 0.40, ed è inoltre possibile notare che vi è un singolo nodo che condivide con altri tutti i propri vicini.
+
+A dimostrazione del fatto che il coefficiente topologico sia fondamentale affinché collaborative filtering funzioni, si mostra in figura \ref{fig:topol-coeff-movielens} la distribuzione del medesimo coefficiente sul grafo relativo al dataset di Movielens, che si è evinto performare meglio (come mostrato già in figura \ref{fig:collab-preds-movielens}). Come si può facilmente notare dal grafico, in questo caso i coefficienti sono mediamente ben più alti, con valori che partono da 0.65 e subiscono un decremento molto graduale. É pertanto chiara la motivazione che porta collaborative filtering ad ottenere risultati accettabili su quest'ultimo dataset.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.25]{images/07_07_topological.png}
+	\caption[Coefficiente topologico dei nodi sul grafo di Amazon]{Coefficiente topologico dei nodi sul grafo di Amazon}
+	\label{fig:topol-coeff-amazon}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.25]{images/07_08_topological_movielens.png}
+\caption[Coefficiente topologico dei nodi sul grafo di Movielens]{Coefficiente topologico dei nodi sul grafo di Movielens}
+\label{fig:topol-coeff-movielens}
+\end{figure}
+
 
 
 \subsection{Il caso Spotify}
 \label{sec:spotify}
 
-Come si è visto, in alcuni casi collaborative filtering non è sufficiente a costituire un buon metodo di raccomandazione. Questo può accadere qualora all'interno del dataset non vi siano realmente utenti o prodotti simili o, ancora più facilmente, possono verificarsi problemi nel momento in cui all'interno del catalogo di prodotti si introducono nuovi articoli, pertanto privi di recensioni. In questo caso, tale approccio non può suggerire il nuovo arrivato e al contrario potrebbe essere causa dell'isolamento dei suddetti prodotto, qualora gli utenti continuassero a ricevere suggerimenti sui soli elementi già ampiamente recensiti.
+Come si è appena dimostrato, in alcuni casi collaborative filtering non è sufficiente a costituire un buon metodo di raccomandazione. Questo può accadere qualora all'interno del dataset non vi siano utenti o prodotti con recensioni in comune o, ancora più frequentemente, nel momento in cui all'interno del catalogo di prodotti si introducono nuovi articoli, pertanto privi di recensioni. In questi caso, tale approccio di raccomandazione non può matematicamente suggerire i nuovi arrivati; al contrario potrebbe essere causa dell'isolamento dei suddetti prodotti, qualora gli utenti continuassero a ricevere suggerimenti sui soli elementi già ampiamente recensiti.
 
-Per questo motivo, un sistema di raccomandazione non dovrebbe essere implementato con il solo collaborative filtering, ma è bisognoso di alcune contromisure che impediscano l'insorgere di situazioni spiacevoli. Agire sul piano pubblicitario potrebbe essere la mossa più intuitiva per risolvere il problema dei nuovi prodotti, ma oltre ad essere lenta e costosa non ha alcun effetto nei casi in cui - come nel dataset considerato per questo studio - non vi siano sufficienti recensioni per considerare simili un gruppo di utenti e prodotti. In funzione di queste considerazione, è fortemente incoraggiata l'integrazione di diversi modelli per il funzionamento del sistema di raccomandazione.
+Per questo motivo, un sistema di raccomandazione non dovrebbe essere implementato con il solo collaborative filtering, ma è bisognoso di alcune contromisure che impediscano l'insorgere di situazioni spiacevoli. Agire sul piano pubblicitario potrebbe essere la mossa più intuitiva per risolvere il problema dei nuovi prodotti, ma oltre ad essere lenta e costosa non ha alcun effetto nei casi in cui - come nel dataset considerato per questo studio - non vi siano sufficienti recensioni per considerare simili un gruppo di utenti o prodotti. Alla luce di queste considerazioni, è fortemente incoraggiata l'integrazione di diversi modelli per l'effettiva implementazione del sistema di raccomandazione.
 
-Un portavoce di questa tecnica di marketing è sicuramente Spotify\cite{site:spotify}, servizio per lo streaming di musica on-demand, che a collaborative filtering non affianca solamente un sistema di raccomandazione content-based già citato nell'introduzione di questo capitolo, ma anche un modello basato sull'analisi dello spettro audio delle canzoni tramite deep learning \cite{site:spotify-article}. É così che nasce \textbf{Discover Weekly}\cite{site:spotify-discover}: attraverso l'elaborazione del linguaggio naturale nei testi delle canzoni, l'analisi sugli ascolti pregressi in combinazione con quella sui metadati (es: il genere musicale) e le componenti audio ricorrenti nelle canzoni che si preferiscono, Spotify è in grado di suggerire \textbf{ogni settimana a tutti i suoi utenti} una lista \textbf{personalizzata} di canzoni inedite che, con alta probabilità, saranno apprezzate dall'utente a cui vengono suggerite. Il sistema permette a chiunque di conoscere canzoni che altrimenti non si sarebbero scoperte, senza di fatto presentare alcuna sorta di bias per gli artisti emergenti o comunità di nicchia.
+Un portavoce di questa tecnica è sicuramente Spotify\cite{site:spotify}, famoso servizio per lo streaming di musica on-demand, che a collaborative filtering non affianca solamente un sistema di raccomandazione di tipo content-based, già citati nell'introduzione di questo capitolo, ma anche un modello basato sull'analisi dello spettro audio delle canzoni tramite deep learning \cite{site:spotify-article}. É così che nasce una delle feature che pongono la piattaforma di streaming su un piano molto competitivo rispetto ai concorrenti: \textbf{Discover Weekly}\cite{site:spotify-discover}.
+
+Attraverso l'elaborazione del linguaggio naturale nei testi delle canzoni, l'analisi sugli ascolti pregressi in combinazione con quella sui metadati (es: il genere musicale) e una sorta di regressione sulle componenti audio ricorrenti nelle canzoni che si preferiscono, Spotify è in grado di suggerire \textbf{ogni settimana a tutti i suoi utenti} una lista \textbf{personalizzata} di canzoni inedite che, con alta probabilità, saranno apprezzate dall'utente a cui vengono suggerite. Il sistema permette a chiunque di conoscere canzoni che altrimenti non si sarebbero scoperte, senza di fatto presentare particolari bias né per gli artisti emergenti o comunità di nicchia, né per quanto riguarda canzoni con la tendenza a divenire sempre più impropriamente popolari.
 
 
 
