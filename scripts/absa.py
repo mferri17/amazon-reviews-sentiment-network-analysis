@@ -9,8 +9,8 @@ from nltk.corpus import wordnet
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk import word_tokenize
 
-#nltk.download('punkt')
-#nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('stopwords')
 
 contractions_dict = { 
 "ain't": "am not / are not / is not / has not / have not",
