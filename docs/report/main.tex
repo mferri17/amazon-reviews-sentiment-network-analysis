@@ -16,7 +16,7 @@
 \usepackage{lipsum}
 \setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
 
-\title{Amazon Reviews Sentiment Analysis}				% Title
+\title{Amazon Reviews Analysis}				% Title
 \author{Basso Matteo \\ Ferri Marco}								% Author
 \date{Luglio 2019}				% Date
 
@@ -34,7 +34,9 @@
 
 \begin{document}
 	
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \begin{titlepage}
 	\centering
@@ -67,20 +69,31 @@
 	
 \end{titlepage}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \null\vspace{\stretch{1}}
+
+
 \section*{\centering Abstract}
 
-Lorem ipsum dolor sit amet.
+L'avvento dell'e-commerce sul Web ha portato con sé la possibilità di ricevere, per produttori e commercianti in generale, un'innumerevole quantità di recensioni spontanee da parte dei clienti. Se in certi contesti il grado di soddisfazione viene indicato tramite una valutazione numerica, si assiste anche alla presenza di recensioni di natura testuale che consento all'autore di esprimere un'opinione dettagliata in merito ad un determinato argomento o prodotto, in tutte le sue sfaccettature. Con l'aumentare dei portali espressamente dedicati a raccogliere recensioni dagli utenti, è nata la necessità di elaborare queste informazioni in maniera automatica. 
+
+La \textbf{sentiment analysis} è quindi la disciplina che applicata ad un insieme di dati che rappresentano opinioni ha l'obiettivo di comprendere il pensiero di una comunità riguardo un certo aspetto, ad esempio nell'ottica di ottimizzare le vendite di un prodotto. É questo il caso di Amazon, nota società di commercio elettronico che basa la sua forza proprio sull'opinione che gli utenti hanno nei confronti di quanto venduto dalla piattaforma e sulla fiducia riposta verso l'azienda stessa.
+
+Analizzando le recensioni dei prodotti su Amazon è possibile non solo comprendere l'opinione degli utenti riguardo i prodotti specifici, ma anche sviluppare dei \textbf{sistemi di raccomandazione} basati sulle preferenze dei singoli con lo scopo di aumentare le vendite e la fidelizzazione dei propri clienti.
+
+In questo elaborato si analizza un dataset di recensioni ufficiali Amazon per sperimentare diverse tecniche di analisi del sentiment e presentare un modello di raccomandazione dei prodotti agli utenti. Infine viene presentata una demo interattiva per la dimostrazione di alcune delle tecniche descritte.
+
 
 \vspace{\stretch{2}} \null
 
 \clearpage
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \tableofcontents
 \clearpage
@@ -88,7 +101,8 @@ Lorem ipsum dolor sit amet.
 \listoftables
 \pagebreak
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -101,7 +115,7 @@ Lo studio ha lo scopo di condurre diversi tipi di analisi sulle recensioni del n
 
 \subsection{Dominio di riferimento}
 
-Sempre maggiore è il numero di siti web che fanno delle recensioni il proprio principale business. Si pensi ai portali dedicati alla recensione di località turistiche, film o ristoranti. Allo stesso modo, anche Amazon basa sulle recensioni parte della propria fidelizzazione clienti.
+Sempre maggiore è il numero di siti web che fanno delle recensioni il proprio principale business. Si pensi ai portali dedicati alla valutazione di località turistiche, film o ristoranti. Allo stesso modo, anche Amazon basa sulle recensioni parte della propria fidelizzazione clienti.
 
 Trattandosi di dati testuali prodotti dagli utenti per valutare i prodotti acquistati, le recensioni esprimono attraverso il linguaggio naturale le impressioni dell'autore, le quali possono assumere un carattere di natura positiva o negativa. In questo contesto è inoltre pratica comune associare al proprio pensiero un punteggio che esprima una valutazione del prodotto su una scala numerica. Se questa informazione è fondamentale per i clienti della piattaforma, poiché permette di capire a colpo d'occhio quale possa essere la qualità dell'articolo che si sta considerando di acquistare, è anche vero che tale punteggio possa rappresentare un aiuto importante per riassumere in forma strutturata (e pertanto più facilmente comprensibile da un computer) l'opinione dell'autore riguardo un certo argomento. Pertanto, analizzare congiuntamente il testo di una recensione ed il punteggio ad essa associato è fondamentale per determinare una correlazione fra il linguaggio naturale e l'opinione dell'utente nei confronti del prodotto, anche detta \textbf{sentiment}. Inoltre, l'elaborazione del testo può considerare il piano morfologico del linguaggio per derivare l'opinione espressa riguardo le diverse caratteristiche del prodotto, dette \textbf{aspect}, espresse nella recensione. Ciò è particolarmente utile per migliorare la qualità dei propri prodotti e ottenere quindi un vantaggio sul piano commerciale.
 
@@ -715,7 +729,9 @@ In funzione di queste considerazioni, si è deciso di valutare l'opportunità di
 
 \subsection{Elaborazione del testo}
 
-Nonostante sia stato accennato che questa tecnica di analisi sia fondamentalmente diversa dalla precedente, bisogna notare che la trattazione preliminare dei testi avviene in modo totalmente analogo. I principi spiegati nel capitolo \ref{sec:text-elab} rimangono validi e devono solamente essere riadattati per adeguarsi alle successive fasi di analisi.
+Nonostante sia stato accennato che questa tecnica di analisi sia fondamentalmente diversa dalla precedente, bisogna notare che la trattazione preliminare dei testi avviene in modo totalmente analogo. I principi spiegati nel capitolo \ref{sec:text-elab} rimangono validi e devono solamente essere riadattati per adeguarsi alle fasi successive.
+
+\vspace{3ex}
 
 Nello specifico, le operazioni che si è scelto di effettuare sull'input sono le seguenti:
 
@@ -732,27 +748,36 @@ Nello specifico, le operazioni che si è scelto di effettuare sull'input sono le
 
 Acronimo di \textit{part-of-speech tagging}, consiste nell'assegnazione di un tag per ciascuna parola del testo, al fine di identificare la categoria grammaticale a cui appartiene. Linguisticamente parlando, il termine \textbf{parte del discorso} definisce le categorie di parole atte a formare le frasi di una lingua, definite dalla disciplina chiamata \textbf{morfologia}. Nella lingua inglese sono distinte in: nomi, aggettivi, verbi, proposizioni, avverbi, pronomi, congiunzioni e interiezioni.
 
-Il processo di POS tagging, quindi, analizza una frase e si occupa di assegnare il ruolo di nome, aggettivo, verbo, etc. ad ogni parola che la compone. Tale operazione è svolta nel codice attraverso l'utilizzo della funzione \texttt{pos\_tag} della libreria \texttt{NLTK}, precedentemente utilizzata anche per le altre fasi dell'elaborazione testuale.
+Il processo di POS tagging, quindi, analizza una frase e si occupa di assegnare il ruolo di nome, aggettivo, verbo, etc. ad ogni parola che la compone. Tale operazione è svolta nel codice attraverso l'utilizzo della libreria \texttt{NLTK}, precedentemente utilizzata anche per le altre fasi dell'elaborazione testuale.
 
 
 
 \subsection{Estrazione degli aspetti}
 
-Lo step successivo al tagging consiste nell'identificazione degli aspetti da tenere in considerazione per l'analisi. Per comprendere come avviene tale estrazione è semplicemente necessario fornire la definizione di aspetto secondo l'implementazione corrente: {\it un aspetto è la congiunzione di uno o più sostantivi contigui derivanti dal POS tagging}. Appare dunque chiaro che questa fase non fa altro che iterare i tag e associare gli aspect di conseguenza.
+Lo step successivo al tagging consiste nell'identificazione degli aspetti da tenere in considerazione per l'analisi. Per comprendere come avviene tale estrazione è semplicemente necessario fornire la definizione di aspetto secondo l'implementazione adottata: un aspetto è la \textbf{congiunzione di uno o più sostantivi contigui} derivanti dal POS tagging. Appare dunque chiaro che questa fase non fa altro che iterare i tag e associare gli aspect di conseguenza.
 
-Un aspetto perculiare di questo step tuttiavia viene dato dal parametro di threshold, configurabile a piacimento in base all'utilizzo. Spesso infatti non risulta conveniente considerare tutti gli aspetti che vengono estratti ma solamente quelli che occorrono un determinato numero di volte. Questo fa si che eventuali errori di valutazione o battitura, per esempio, non vengano considerati al posto di essere mantenuti come aspetti di fatto scorretti o poco considerevoli. Questa tipologia di filtraggio permette inoltre di non mantenere, per dataset molto grandi, tutti gli aspetti trattati dagli utenti ma solo i principali.
+Una peculiarità di questa fase è il parametro di \textit{threshold}, configurabile a piacimento in base all'utilizzo. Spesso infatti non risulta conveniente considerare tutti gli aspetti che vengono estratti ma solamente quelli che occorrono un determinato numero di volte. Questo fa si che eventuali errori di valutazione o battitura, per esempio, vengano ignorati piuttosto che essere considerati come aspetti nonostante siano di fatto errati o di poca rilevanza. Questa tipologia di filtraggio permette inoltre di estrarre, per dataset molto grandi, non tutti gli aspetti trattati dagli utenti ma solo quelli più ricorrenti e conseguentemente anche più importanti.
+
+
 
 \subsection{Identificazione del sentiment}
 
-Avendo a disposizione gli aspetti e le frasi è ora possibile passare alla stima del sentiment vera e propria. Risulta quindi necessario iterare i vari aspetti identificati ed ottenere le frasi in cui essi sono citati. Per ognuna di queste frasi è possibile utilizzare la libreria TextBlob \cite{site:textblob} per ottenerne la polarità e la lista di aggettivi. Ciò che si dovrà quindi produrre consterà solamente in tale score e nell'elenco appena descritto, per completezza vengono tuttavia esportate le percentuali per mostrare lo sbilanciamento tra le varie classi relative all'aspect che si sta considerando e l'elenco delle frasi che hanno portato a tale conclusione.
+Avendo a disposizione gli aspetti e le frasi che compongono il corpus è necessario finalmente stimare il sentiment associato a ciascun aspetto. Attraverso la libreria \texttt{TextBlob} \cite{site:textblob} è possibile ottenere la \textbf{polarità} di una parola, cioè un punteggio che rappresenta il sentiment della parola su scala numerica, in grado di esprimere il livello di negatività, neutralità o positività del termine stesso.
+
+Iterando sugli aspetti precedentemente estratti ed identificando nel dataset le frasi che li contengono, è possibile utilizzare la libreria per ottenerne la polarità. Si è scelto inoltre di salvare per ciascun aspect anche la lista di aggettivi che lo descrivono. Data la classe associata ad un aspect, viene per completezza infine computata anche la percentuale di frasi che hanno portato all'identificazione di tale classe, sul totale delle frasi inerenti quel determinato aspetto; ciò è utile per valutare lo sbilanciamento fra diverse classi che è possibile constatare per il medesimo argomento.
+
+
 
 \subsection{Risultati}
 
-A seguito dell'esecuzione degli step qui definiti sul dataset preso in considerazione è stato possibile trarre delle conclusioni riguardo le performance dell'algoritmo e gli aspetti stessi da esso identificati.
+A seguito dell'esecuzione degli step descritti, è stato possibile trarre alcune conclusioni riguardo gli aspetti identificati dall'algoritmo.
 
-I dati estrapolati dal dataset risultano navigabili agevolmente mediante l'interfaccia web definita nel capitolo \ref{sec:ui_abas}. In linea generale è possibile asserire che l'algoritmo identifica correttamente la maggior parte degli aspetti e il relativo sentiment associato. Talvolta tuttavia, esso identifica come aspetti delle parole chiave che non risultano propriamente congrue con quanto ci si aspetta dalla frase. Vengono per esempio selezionati alcun aggettivi erroneamente classificati come sostantivi, anche per un numero di occorrenze maggiore della soglia minima. Sulle singole frasi poi è possibile osservare che non sempre la divisione in frasi per punteggiatura funziona correttamente, andando così a ignorare qualche aspetto che potrebbe risultare fondamentale. Data la complessità del task in ogni caso la presenza di qualche errore rimane ragionevole. Un miglioramento potrebbe essere introdotto da un ulteriore step in grado di identificare la dipendenza dei vari token all'interno di una frase, come spiegato nel paper {\it The Representation of Sentence Meaning} \cite{site:the_representation_of_sentence_meaning}.
+I dati estrapolati dal dataset sono agevolmente navigabili mediante l'interfaccia web definita nel capitolo \ref{sec:ui_abas}. In linea generale è possibile asserire che l'algoritmo sia in grado di identificare correttamente la maggior parte degli aspetti con il relativo sentiment. Talvolta tuttavia, sono identificati come aspetti delle parole non propriamente congrue rispetto quanto ci si aspetti dalla frase. Vengono per esempio selezionati alcun aggettivi erroneamente classificati come sostantivi, anche a causa dell'elevato numero di occorrenze. Sulle singole frasi poi è possibile osservare che non sempre la divisione in frasi per punteggiatura funziona correttamente, andando così a ignorare qualche aspetto che potrebbe risultare fondamentale.
 
-L'utilizzo di un sistema di questo genere quindi sembrerebbe essere maggiormente utile se applicato a un grosso insieme di recensioni, per estrarre gli aspetti fondamentali. Un impiego mirato sulla singola recensione risulta poco accurato nel complesso e di poco peso. Un'azienda dovrebbe dunque effettuare queste analisi su tutti i dati che ha a disposizione per capire gli aspetti critici e i punti di forza dei servizi che sta offrendo, in modo tale da correggere eventuali problematiche e fornire sempre il meglio per il cliente.
+Data la complessità del task, in ogni caso la presenza di qualche errore rimane accettabile. Un miglioramento potrebbe essere introdotto con l'introduzione di uno passaggio per identificare la dipendenza fra i token all'interno della frase, come spiegato nel paper \textit{The Representation of Sentence Meaning} \cite{site:the_representation_of_sentence_meaning}.
+
+L'utilizzo di un sistema di questo genere quindi sembrerebbe essere maggiormente utile se applicato a un grosso insieme di recensioni dalle quali estrarre gli aspetti fondamentali. Un impiego mirato sulla singola recensione risulta poco accurato nel complesso e quindi poco utile. Un'azienda dovrebbe dunque effettuare queste analisi su tutti i dati a disposizione, per identificare gli aspetti critici e i punti di forza dei servizi che sta offrendo, al fine di correggere eventuali problematiche e fornire sempre il meglio per il cliente.
+
 
 
 \clearpage
@@ -892,6 +917,16 @@ Si conclude mostrando i risultati ottenuti sul medesimo dataset utilizzando una 
 \end{table}
 
 
+
+\subsection{Il caso Spotify}
+\label{sec:spotify}
+
+Purtroppo, collaborative filtering è particolarmente carente nel momento in cui all'interno del catalogo di prodotti si introduce un nuovo articolo, privo di recensioni. In questo caso, tale approccio non può algoritmicamente suggerire il nuovo arrivato e al contrario potrebbe essere causa dell'isolamento del suddetto prodotto, qualora gli utenti continuassero a ricevere suggerimenti sui soli elementi già ampiamente recensiti. Per questo motivo, un sistema di raccomandazione non dovrebbe essere implementato con il solo collaborative filtering al fine di prendere delle contromisure per i prodotti nuovi o poco conosciuti. Agire sul piano pubblicitario potrebbe essere la mossa più intuitiva, ma è lenta e costosa, perciò si incoraggia l'integrazione di diversi modelli all'interno del sistema di raccomandazione.
+
+Un portavoce di questa tecnica di marketing è sicuramente Spotify\cite{site:spotify}, servizio per lo streaming di musica on-demand, che a collaborative filtering non affianca solamente un sistema di raccomandazione content-based già citato nell'introduzione di questo capitolo, ma anche un modello basato sull'analisi dello spettro audio delle canzoni tramite deep learning \cite{site:spotify-article}. É così che nasce \textbf{Discover Weekly}\cite{site:spotify-discover}: attraverso l'elaborazione del linguaggio naturale nei testi delle canzoni, l'analisi sugli ascolti pregressi in combinazione con quella sui metadati (es: il genere musicale) e le componenti audio ricorrenti nelle canzoni che si preferiscono, Spotify è in grado di suggerire \textbf{ogni settimana a tutti i suoi utenti} una lista \textbf{personalizzata} di canzoni inedite che, con alta probabilità, saranno apprezzate dall'utente a cui vengono suggerite. Il sistema permette a chiunque di conoscere canzoni che altrimenti non si sarebbero scoperte, senza di fatto influenzare negativamente gli artisti emergenti.
+
+
+
 \clearpage
 
 
@@ -899,69 +934,83 @@ Si conclude mostrando i risultati ottenuti sul medesimo dataset utilizzando una 
 \section{Web Demo}
 \label{sec:ui}
 
-Al fine di dimostrare l'utilizzo della sentiment analysis in un applicativo software, viene qui illustrato lo sviluppo e il funzionamento di un'applicazione web che permette la predizione del sentiment di una recensione, sia a livello globale che a livello dei singoli aspetti in essa identificabili. Viene inoltre mostrata a scopo esemplificativo una schermata con i dati relativi gli aspetti del prodotto più ricorrente nel dataset.
+Al fine di dimostrare l'utilizzo della sentiment analysis in un applicativo software, viene qui illustrato lo sviluppo e il funzionamento di un'applicazione web che permette la predizione del sentiment di una recensione, sia sul piano globale che a livello dei singoli aspetti identificabili. Viene inoltre mostrata a scopo esemplificativo un'interfaccia per la visualizzazione degli aspetti più ricorrenti nel dataset.
 
-Un ulteriore interfaccia permette anche la visualizzazione dei dei prodotti consigliati per i determinati utenti delle quali sono presenti le recensioni.
+% TODO
+Un'ultima funzionalità permette la visualizzazione dei prodotti consigliati ad un utente scelto fra quelli disponibili nel dataset.
+
+
 
 \subsection{Architettura}
 
-L'interfaccia web è stata sviluppata utilizzando l'architettura a 3 layer, con separazione di frontend, backend e database.
+L'interfaccia web è stata sviluppata utilizzando l'architettura client-server, con la separazione tra front-end e back-end.
 
-Il database utilizzato in fase di lettura è quello fornito inizialmente, senza alcuna modifica. Esso consiste quindi in un file JSON interrogabile e modificabile semplicemente tramite un web server. Questo risulta particolarmente utile per fornire i dettagli degli utenti e dei prodotti così che l'utente possa visualizzarli e sceglierli attraverso l'opportuna interfaccia.
+Per lo sviluppo del back-end si è scelto di utilizzare l'engine Javascript attraverso il progetto Node.js \cite{site:nodejs}, in grado di agire come middleware tra il front-end e la fonte dei dati al fine di separare al meglio le logiche di manipolazione del dato stesso dalla sua presentazione. \'E inoltre incaricato di invocare gli script Python per le analisi descritte nei capitoli precedenti.
 
-Per lo sviluppo del backend è stato deciso di utilizzare l'engine Javascript tramite il popolare progetto Node.js \cite{site:nodejs}. Esso è in grado di agire come middleware tra il frontend e la fonte dati, separando al meglio le logiche di manipolazione del dato stesso. \'E inoltre incaricato di chiamare adeguatamente gli script Python per la predizione del sentiment, degli aspetti e dei prodotti consigliati.
+Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \cite{site:react} ed è dedicato all'interazione dell'utente con i modelli di sentiment analysis sviluppati tramite la visualizzazione dei risultati ottenuti con quest'ultimi.
 
-Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \cite{site:react}
 
 
 \subsection{Aspect Based Sentiment Analysis}
 \label{sec:ui_abas}
 
-All'avvio dell'app, utilizzando semplicemente un browser web, è possibile notare la schermata principale con 3 tab di selezione: {\it ABSA}, {\it Sentiment} e {\it Collaborative filtering}.
+% TODO
+All'avvio dell'app tramite web browser viene presentata la schermata principale con tre tab di selezione: {\it ABSA}, {\it Sentiment} e {\it Collaborative Filtering}.
 
-Cliccando sul primo di essi viene presentata una videata contenente una lista di aspect con associato il relativo sentiment predominante. Tale lista rappresenta le informazioni estratte dal dataset considerato nell'elaborato e in riferimento solamente al prodotto più recensito. Sulla singola riga è possibile subito identificare l'aspect sul lato sinistro, mentre sul lato destro vengono mostrate polarità, con il relativo score, e percentuale delle frasi con tale polarità in relazione a tutte quelle che lo riguardano. Facendo click sulla singola riga è possibile espandere i dettagli e visualizzare per ogni classe ( positiva, negativa o neutrale) le frasi e gli aggettivi ad essa associati. Nella figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_complete} viene mostrata la lista completa, mentre nella figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_expanded} la visualizzazione del dettaglio di un singolo elemento.
+Selezionando il primo dei tre compare la videata rappresentata in figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_complete}, che contiene una lista di aspect, ognuno dei quali associato al sentiment predominante. Tale lista rappresenta le informazioni estratte dal dataset in riferimento al solo prodotto più recensito. Ciascuna riga mostra l'aspect sul lato sinistro, mentre nella parte destra vengono mostrate la polarità con il relativo score e la percentuale di frasi con tale polarità, in relazione a tutte quelle che lo riguardano. 
+
+Facendo click su una delle righe è possibile espandere i dettagli e visualizzare, per ogni classe (positiva, negativa o neutrale), le frasi e gli aggettivi ad essa associati, così come mostrato in figura \subref{fig:aspect_ui_list_expanded}.
 
 \begin{figure}[H]
 	\centering
-	\minipage{0.85\textwidth}
-	\subfloat[][\emph{Lista aspect}\label{fig:aspect_ui_list_complete}]{
+	\minipage{1\textwidth}
+	\subfloat[][\emph{Lista degli aspetti}\label{fig:aspect_ui_list_complete}]{
 		\includegraphics[width=\linewidth]{images/08_02_aspect_ui_list_complete.png}
 	}
 	\endminipage
 	\hfill
-	\minipage{0.85\textwidth}
-	\subfloat[][\emph{Dettaglio aspect}\label{fig:aspect_ui_list_expanded}]{
+	\minipage{1\textwidth}
+	\subfloat[][\emph{Dettaglio del singolo aspect}\label{fig:aspect_ui_list_expanded}]{
 		\includegraphics[width=\linewidth]{images/08_02_aspect_ui_list_expanded.png}
 	}
 	\endminipage
-	\caption{Interfaccia grafica ABSA amazon dataset}
+	\caption{Aspect based sentiment analysis UI}
 	\label{fig:aspect_ui_list}
 \end{figure}
 
+
+
 \subsection{Sentiment Prediction}
 
-Tramite il secondo tab, posto nella parte superiore dello schermo, è possibile accedere ad una schermata che permette l'inserimento di una singola recensione al fine di valutarne il sentiment complessivo, tramite il modello di machine learning esplicato nel capitolo \ref{sec:pipeline}, così come anche quello relativo a ogni singolo aspect.
+Tramite il secondo tab, posto nella parte superiore dello schermo, è possibile accedere ad una schermata che permette l'inserimento da parte dell'utente di una nuova recensione; di questa ne viene valutato sia il sentiment complessivo attraverso il modello di machine learning esplicato nel capitolo \ref{sec:pipeline}, sia estratta la lista degli aspect con associati i relativi sentiment.
 
-\'E dunque possibile inserire un testo nell'apposita area di input sul lato sinistro e premere il pulsante sottostante per avviare l'analisi. Il risultato verrà mostrato sul lato destro dello schermo, con un'interfaccia analoga a quella mostrata precedentemente per la parte relativa ABSA. Nella figura \ref{fig:sentiment_ui_prediction} viene mostrata un'anteprima di quanto spiegato.
+La figura \ref{fig:sentiment_ui_prediction} mostra un'anteprima dell'interfaccia. \'E dunque possibile inserire un testo nell'apposita area di input sul lato sinistro e premere il pulsante sottostante per avviare l'analisi. Il risultato verrà mostrato sul lato destro dello schermo, con un'interfaccia analoga a quella mostrata precedentemente per la parte relativa all'aspect based sentiment analysis.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.3]{images/08_03_sentiment_ui_prediction.png}
-	\caption[Sentiment prediction]{Sentiment prediction}
+	\includegraphics[scale=0.35]{images/08_03_sentiment_ui_prediction.png}
+	\caption[Sentiment prediction UI]{Sentiment prediction UI}
 	\label{fig:sentiment_ui_prediction}
 \end{figure}
 
+
+\clearpage
+
+
 \subsection{Collaborative filtering}
 
-Nell'ultimo tab è invece possibile selezionare un utente e mostrare i prodotti che potrebbero potenzialmente essergli suggeriti da amazon, secondo quanto appreso dal dataset utilizzato. Una volta selezionato l'utente dal select field è quindi possibile premere il tasto sottostante per avviare la ricerca. Una volta ultimata è possibile visualizzare la lista di prodotti ordinata dal più rilevante al meno significativo. Nella figura \ref{fig:collaborative_filtering_ui} è possibile visualizzare tale funzionalità.
+Nell'ultimo tab è invece possibile selezionare un utente e mostrare i prodotti che potrebbero potenzialmente essergli suggeriti da amazon, secondo quanto appreso dal dataset utilizzato. Una volta selezionato l'utente dal menù a tendina è quindi possibile premere il tasto sottostante per avviare la ricerca.
 
+Una volta ultimata è possibile visualizzare la lista di prodotti ordinata dal più rilevante al meno significativo, così come mostrato in figura \ref{fig:collaborative_filtering_ui}.
 
 \begin{figure}[H]
 	\centering
 %	\includegraphics[scale=0.3]{images/08_03_collaborative_filtering_ui.png}
-	\caption[Collaborative filtering]{Collaborative filtering}
+	\caption[Collaborative filtering UI]{Collaborative filtering UI}
 	\label{fig:collaborative_filtering_ui}
 \end{figure}
+
+
 
 \clearpage
 
@@ -973,9 +1022,13 @@ Lo studio è riuscito a dimostrare le innumerevoli possibilità di effettuare an
 
 In particolare, l'analisi delle recensioni di Amazon può essere utile sia ai produttori che al portale di e-commerce stesso per migliorare i propri servizi o sapere come ampliare l'offerta commerciale, curando magari gli aspetti più carenti. Con assoluta certezza si potrebbe appurare che parte del successo di Amazon è stato acquisito anche grazie ad analisi di questo tipo.
 
-I medesimi modelli possono essere facilmente riadattati a qualsiasi altro dominio preveda l'utilizzo di recensioni e sarebbe sicuramente interessante approfondire quali dei principali colossi tech odierni abbiano sfruttato metodologie di sentiment analysis e collaborative filtering per scalare le vette di mercato. Si è visto ad esempio nel capitolo \ref{sec:spotify} come l'azienda sia in grado di fornire ai propri utenti un modello di raccomandazione della musica sfruttando approcci misti di collaborative filtering, natural language processing e analisi delle componenti audio tramite deep learning. Considerata la precisione dei risultati ottenuti si può dedurre che il modo migliore per ottimizzare l'utilizzo dei dati raccolti sia quello di combinare molteplici approcci di analisi e machine learning.
+I medesimi modelli possono essere facilmente riadattati a qualsiasi altro dominio preveda l'utilizzo di recensioni e sarebbe sicuramente interessante approfondire quali dei principali colossi tech odierni abbiano sfruttato metodologie di sentiment analysis e collaborative filtering per scalare le vette di mercato. Si è visto ad esempio nel capitolo \ref{sec:spotify} come Spotify sia in grado di fornire ai propri utenti un modello di raccomandazione della musica sfruttando svariati approcci: content e metadata analysis, collaborative filtering e deep learning sullo spettro audio delle canzoni.
+
+Considerata la precisione dei risultati ottenuti si può dedurre che il metodo migliore per ottimizzare l'utilizzo dei dati raccolti sia quello di combinare molteplici tecniche di analisi e modelli di machine learning in grado di influenzarsi a vicenda, nell'ottica di ottenere risultati più completi, precisi e utili sia per gli utenti che per il mercato.
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \newpage
