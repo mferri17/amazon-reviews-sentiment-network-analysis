@@ -46,7 +46,6 @@ const TeamTabs = () => {
         <Tabs variant="fullWidth" value={value} onChange={handleChange}>
           <LinkTab label="ABSA" href="/absa" />
           <LinkTab label="Sentiment" href="/sentiment" />
-          <LinkTab label="Collaborative filtering" href="/collaborative-filtering" />
         </Tabs>
       </AppBar>
       <div className={classes.tabContainer}>
