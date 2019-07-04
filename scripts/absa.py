@@ -274,7 +274,7 @@ def apportion_pcts(pcts, total):
             remainder -= 1
     return apportions
 
-def identifyOpinion(review, aspect, tokenized):
+def identifyOpinion(aspect, tokenized):
     output={}
     lemmatized = {
         key: [lemmatizer.lemmatize(word) for word in word_tokenize(str(value).upper())]
@@ -375,7 +375,7 @@ def absa(reviews, threshold, out_file):
     print("\n\n\n#### Aspect Identification ####\n")
     aspects = aspectExtraction(postagged, threshold)
     print("\n\n\n#### Opinion mining ####\n")
-    opinion=identifyOpinion(postagged,aspects,tokenized)
+    opinion=identifyOpinion(aspects,tokenized)
     f = open(out_file,'w')
     json.dump(opinion,f,indent=4)
     f.close()

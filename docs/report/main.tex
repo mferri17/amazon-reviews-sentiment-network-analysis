@@ -671,6 +671,7 @@ Come mostrato, Naive Bayes e SVM ottengono performance molto simili. Il primo è
 
 
 \subsection{Pipeline}
+\label{sec:pipeline}
 
 Scelta la modalità di elaborazione del testo e il classificatore più adeguato per il dominio di riferimento, \texttt{scikit-learn} consente di effettuare predizioni sui nuovi input. Chiaramente non è necessario che vengano effettuate ogni volta le operazioni preliminari di apprendimento sull'intero dataset, ma è sufficiente sfruttare il modello appreso a cui fornire il nuovo input, adeguatamente pre-processato. Per agevolare il processo, la classe \texttt{Pipeline} fornisce al programmatore la possibilità di definire una sequenza di operazioni necessaria sia per l'apprendimento che per la predizione su nuovi input.
 
@@ -737,15 +738,21 @@ Il processo di POS tagging, quindi, analizza una frase e si occupa di assegnare 
 
 \subsection{Estrazione degli aspetti}
 
+Lo step successivo al tagging consiste nell'identificazione degli aspetti da tenere in considerazione per l'analisi. Per comprendere come avviene tale estrazione è semplicemente necessario fornire la definizione di aspetto secondo l'implementazione corrente: {\it un aspetto è la congiunzione di uno o più sostantivi contigui derivanti dal POS tagging}. Appare dunque chiaro che questa fase non fa altro che iterare i tag e associare gli aspect di conseguenza.
 
+Un aspetto perculiare di questo step tuttiavia viene dato dal parametro di threshold, configurabile a piacimento in base all'utilizzo. Spesso infatti non risulta conveniente considerare tutti gli aspetti che vengono estratti ma solamente quelli che occorrono un determinato numero di volte. Questo fa si che eventuali errori di valutazione o battitura, per esempio, non vengano considerati al posto di essere mantenuti come aspetti di fatto scorretti o poco considerevoli. Questa tipologia di filtraggio permette inoltre di non mantenere, per dataset molto grandi, tutti gli aspetti trattati dagli utenti ma solo i principali.
 
 \subsection{Identificazione del sentiment}
 
-
+Avendo a disposizione gli aspetti e le frasi è ora possibile passare alla stima del sentiment vera e propria. Risulta quindi necessario iterare i vari aspetti identificati ed ottenere le frasi in cui essi sono citati. Per ognuna di queste frasi è possibile utilizzare la libreria TextBlob \cite{site:textblob} per ottenerne la polarità e la lista di aggettivi. Ciò che si dovrà quindi produrre consterà solamente in tale score e nell'elenco appena descritto, per completezza vengono tuttavia esportate le percentuali per mostrare lo sbilanciamento tra le varie classi relative all'aspect che si sta considerando e l'elenco delle frasi che hanno portato a tale conclusione.
 
 \subsection{Risultati}
 
+A seguito dell'esecuzione degli step qui definiti sul dataset preso in considerazione è stato possibile trarre delle conclusioni riguardo le performance dell'algoritmo e gli aspetti stessi da esso identificati.
 
+I dati estrapolati dal dataset risultano navigabili agevolmente mediante l'interfaccia web definita nel capitolo \ref{sec:ui_abas}. In linea generale è possibile asserire che l'algoritmo identifica correttamente la maggior parte degli aspetti e il relativo sentiment associato. Talvolta tuttavia, esso identifica come aspetti delle parole chiave che non risultano propriamente congrue con quanto ci si aspetta dalla frase. Vengono per esempio selezionati alcun aggettivi erroneamente classificati come sostantivi, anche per un numero di occorrenze maggiore della soglia minima. Sulle singole frasi poi è possibile osservare che non sempre la divisione in frasi per punteggiatura funziona correttamente, andando così a ignorare qualche aspetto che potrebbe risultare fondamentale. Data la complessità del task in ogni caso la presenza di qualche errore rimane ragionevole. Un miglioramento potrebbe essere introdotto da un ulteriore step in grado di identificare la dipendenza dei vari token all'interno di una frase, come spiegato nel paper {\it The Representation of Sentence Meaning} \cite{site:the_representation_of_sentence_meaning}.
+
+L'utilizzo di un sistema di questo genere quindi sembrerebbe essere maggiormente utile se applicato a un grosso insieme di recensioni, per estrarre gli aspetti fondamentali. Un impiego mirato sulla singola recensione risulta poco accurato nel complesso e di poco peso. Un'azienda dovrebbe dunque effettuare queste analisi su tutti i dati che ha a disposizione per capire gli aspetti critici e i punti di forza dei servizi che sta offrendo, in modo tale da correggere eventuali problematiche e fornire sempre il meglio per il cliente.
 
 
 \clearpage
@@ -892,24 +899,69 @@ Si conclude mostrando i risultati ottenuti sul medesimo dataset utilizzando una 
 \section{Web Demo}
 \label{sec:ui}
 
+Al fine di dimostrare l'utilizzo della sentiment analysis in un applicativo software, viene qui illustrato lo sviluppo e il funzionamento di un'applicazione web che permette la predizione del sentiment di una recensione, sia a livello globale che a livello dei singoli aspetti in essa identificabili. Viene inoltre mostrata a scopo esemplificativo una schermata con i dati relativi gli aspetti del prodotto più ricorrente nel dataset.
+
+Un ulteriore interfaccia permette anche la visualizzazione dei dei prodotti consigliati per i determinati utenti delle quali sono presenti le recensioni.
 
 \subsection{Architettura}
 
 L'interfaccia web è stata sviluppata utilizzando l'architettura a 3 layer, con separazione di frontend, backend e database.
 
-Il database utilizzato in fase di lettura è quello fornito inizialmente, senza alcuna modifica. Esso consiste quindi in un file SQLite interrogabile e modificabile semplicemente tramite un web server. Questo risulta particolarmente utile per fornire i dettagli dei giocatori ed eventualmente dei team così che l'utente possa visualizzarli e sceglierli attraverso l'opportuna interfaccia.
+Il database utilizzato in fase di lettura è quello fornito inizialmente, senza alcuna modifica. Esso consiste quindi in un file JSON interrogabile e modificabile semplicemente tramite un web server. Questo risulta particolarmente utile per fornire i dettagli degli utenti e dei prodotti così che l'utente possa visualizzarli e sceglierli attraverso l'opportuna interfaccia.
 
-Per lo sviluppo del backend è stato deciso di utilizzare l'engine Javascript tramite il popolare progetto Node.js \cite{site:nodejs}. Esso è in grado di agire come middleware tra il frontend e il database, separando al meglio le logiche di manipolazione del dato. \'E inoltre incaricato di chiamare adeguatamente lo script R per la predizione del vincitore della partita e per svolgere le inferenze richieste.
+Per lo sviluppo del backend è stato deciso di utilizzare l'engine Javascript tramite il popolare progetto Node.js \cite{site:nodejs}. Esso è in grado di agire come middleware tra il frontend e la fonte dati, separando al meglio le logiche di manipolazione del dato stesso. \'E inoltre incaricato di chiamare adeguatamente gli script Python per la predizione del sentiment, degli aspetti e dei prodotti consigliati.
 
 Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \cite{site:react}
 
 
+\subsection{Aspect Based Sentiment Analysis}
+\label{sec:ui_abas}
+
+All'avvio dell'app, utilizzando semplicemente un browser web, è possibile notare la schermata principale con 3 tab di selezione: {\it ABSA}, {\it Sentiment} e {\it Collaborative filtering}.
+
+Cliccando sul primo di essi viene presentata una videata contenente una lista di aspect con associato il relativo sentiment predominante. Tale lista rappresenta le informazioni estratte dal dataset considerato nell'elaborato e in riferimento solamente al prodotto più recensito. Sulla singola riga è possibile subito identificare l'aspect sul lato sinistro, mentre sul lato destro vengono mostrate polarità, con il relativo score, e percentuale delle frasi con tale polarità in relazione a tutte quelle che lo riguardano. Facendo click sulla singola riga è possibile espandere i dettagli e visualizzare per ogni classe ( positiva, negativa o neutrale) le frasi e gli aggettivi ad essa associati. Nella figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_complete} viene mostrata la lista completa, mentre nella figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_expanded} la visualizzazione del dettaglio di un singolo elemento.
+
+\begin{figure}[H]
+	\centering
+	\minipage{0.85\textwidth}
+	\subfloat[][\emph{Lista aspect}\label{fig:aspect_ui_list_complete}]{
+		\includegraphics[width=\linewidth]{images/08_02_aspect_ui_list_complete.png}
+	}
+	\endminipage
+	\hfill
+	\minipage{0.85\textwidth}
+	\subfloat[][\emph{Dettaglio aspect}\label{fig:aspect_ui_list_expanded}]{
+		\includegraphics[width=\linewidth]{images/08_02_aspect_ui_list_expanded.png}
+	}
+	\endminipage
+	\caption{Interfaccia grafica ABSA amazon dataset}
+	\label{fig:aspect_ui_list}
+\end{figure}
 
 \subsection{Sentiment Prediction}
 
-\subsection{Aspect Based Sentiment Analysis}
+Tramite il secondo tab, posto nella parte superiore dello schermo, è possibile accedere ad una schermata che permette l'inserimento di una singola recensione al fine di valutarne il sentiment complessivo, tramite il modello di machine learning esplicato nel capitolo \ref{sec:pipeline}, così come anche quello relativo a ogni singolo aspect.
+
+\'E dunque possibile inserire un testo nell'apposita area di input sul lato sinistro e premere il pulsante sottostante per avviare l'analisi. Il risultato verrà mostrato sul lato destro dello schermo, con un'interfaccia analoga a quella mostrata precedentemente per la parte relativa ABSA. Nella figura \ref{fig:sentiment_ui_prediction} viene mostrata un'anteprima di quanto spiegato.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.3]{images/08_03_sentiment_ui_prediction.png}
+	\caption[Sentiment prediction]{Sentiment prediction}
+	\label{fig:sentiment_ui_prediction}
+\end{figure}
+
+\subsection{Collaborative filtering}
+
+Nell'ultimo tab è invece possibile selezionare un utente e mostrare i prodotti che potrebbero potenzialmente essergli suggeriti da amazon, secondo quanto appreso dal dataset utilizzato. Una volta selezionato l'utente dal select field è quindi possibile premere il tasto sottostante per avviare la ricerca. Una volta ultimata è possibile visualizzare la lista di prodotti ordinata dal più rilevante al meno significativo. Nella figura \ref{fig:collaborative_filtering_ui} è possibile visualizzare tale funzionalità.
 
 
+\begin{figure}[H]
+	\centering
+%	\includegraphics[scale=0.3]{images/08_03_collaborative_filtering_ui.png}
+	\caption[Collaborative filtering]{Collaborative filtering}
+	\label{fig:collaborative_filtering_ui}
+\end{figure}
 
 \clearpage
 
