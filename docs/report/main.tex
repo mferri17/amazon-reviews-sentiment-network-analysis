@@ -12,6 +12,8 @@
 \usepackage{float}
 \usepackage{hyperref}
 \usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{lipsum}
 \setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
 
 \title{Amazon Reviews Sentiment Analysis}				% Title
@@ -345,8 +347,6 @@ Anche considerando il grafico della distribuzione degli \textit{in-degree} (figu
 \caption[Distribuzione dell'\textit{in-degree} per i prodotti]{Distribuzione dell'\textit{in-degree} per i prodotti}
 \label{fig:in-degree}
 \end{figure}
-
-\subsection{??? Misure di centralità}
 
 
 
@@ -754,10 +754,135 @@ Il processo di POS tagging, quindi, analizza una frase e si occupa di assegnare 
 
 \section{Collaborative Filtering}
 
+
+É stato mostrato come attraverso l'analisi del linguaggio naturale sia possibile ricavare l'opinione di un utente nei confronti di un prodotto o di svariati aspetti legati al business che si sta analizzando. Attraverso l'analisi del sentiment di un gruppo di utenti, è inoltre possibile costruire un modello di raccomandazione su una collezione di prodotti. Ciò è implementabile attraverso due possibili approcci:
+
+\begin{itemize}
+	\item \textbf{content-based}: sfruttando i metadati di un insieme di prodotti, come ad esempio il genere o la categoria di prezzo, è possibile identificare degli elementi chiave in grado di rappresentare i gusti di uno o più utenti, a cui conseguentemente suggerire prodotti che rispecchino tali preferenze
+	\item \textbf{collaborative-filtering}: senza considerare alcun tipo di metadato, è possibile inferire dallo storico degli acquisti e delle preferenze espresse dagli utenti una similarità fra prodotti o utenti stessi, secondo l'assunzione per cui, ad esempio, due persone che hanno valutato equamente un gruppo di prodotti abbiano effettivamente dei gusti simili; è possibile quindi sfruttare questa considerazione per suggerire al secondo utente anche altri acquisti effettuati dal primo
+\end{itemize}
+
+Poiché, come precedentemente accennato, il dataset utilizzato per lo studio è privo di metadati, si è scelto di provare a implementare un sistema di raccomandazione basato su collaborative filtering. Quest'ultimo può rappresentare un netto vantaggio per la piattaforma e-commerce, in funzione della necessità di fidalizzare i propri clienti e spingerli ad effettuare nuovi acquisti.
+
+
+
 \subsection{Funzionamento}
+
+Il concetto di collaborative filtering è utile nel contesto in cui, data una lista di persone e articoli, si conoscono le valutazioni assegnate da ciascun utente nei confronti di alcuni articoli sul totale.
+
+\begin{wrapfigure}[10]{r}{7cm}
+	\raisebox{0pt}[\dimexpr\height-2.5\baselineskip\relax]{\includegraphics[scale=0.4]{../images/07_01_collab_matrix.png}}
+	\caption[Matrice di utenti e prodotti con valutazioni personali]{Matrice di utenti e prodotti con valutazioni personali}
+	\label{fig:collab-filter-matrix}
+\end{wrapfigure}
+
+Una conoscenza di questo tipo, rappresentata solitamente attraverso la matrice in figura \ref{fig:collab-filter-matrix}, è utile per effettuare predizioni in merito alle valutazioni mancanti sulla base degli utenti con preferenze simili.
+
+Ciò è reso possibile attraverso l'applicazione di calcoli matriciali in grado di estrarre dalla matrice opportuni descrittori per ciascun utente e prodotto al fine di effettuare una successiva comparazione.
+
+
+\subsubsection{Embedding}
+
+Come appena accennato, la prima fase di realizzazione di un collaborative filtering prevede l'impiego di una modellazione dei dati che sia in grado di descrivere e successivamente comparare efficacemente le componenti del dominio. L'estrazione di tali descrittori dalla matrice in figura \ref{fig:collab-filter-matrix} è detta embedding, e può essere svolta con molteplici tecniche. La più utilizzata consiste nel proiettare ciascun prodotto e utente in uno spazio vettoriale, andando quindi a rappresentare ciascuno degli elementi che si vuole descrivere tramite un vettore. 
+
+L'operazione effettuata sulla matrice è chiamata \textbf{fattorizzazione}, ed avviene analizzando singolarmente le righe e le colonne della matrice. Al termine della fattorizzazione si otterranno tanti embedding quanti sono gli utenti e i prodotti, ognuno dei quali rappresentato da un vettore con un arbitrario numero di elementi scelto a priori. Ciascun elemento dei vettori di embedding rappresenta di fatto una caratteristica dell'utente o del prodotto, inferita dalla matrice delle valutazioni, senza tuttavia che sia dato modo sapere quale sia il suo vero significato semantico.
+
+Il calcolo dei vettori di embedding non è univoco, pertanto quest'ultimi sono sottoposti a cicli di aggiornamento durante la fase di apprendimento del modello di collaborative filtering con lo scopo di ottimizzare il risultato delle predizioni.
+
+
+\subsubsection{Bias}
+
+Oltre al vettore di embedding, per ogni elemento del dominio viene calcolato anche un ulteriore parametro detto bias, che ha l'obiettivo di normalizzare utenti e prodotti rispetto all'insieme delle valutazioni ricevute. Tale parametro è ad esempio in grado di trovare un compromesso per la descrizione di utenti particolarmente critici o prodotti molto popolari. Il bias per ciascun prodotto e utente ha chiaramente un'influenza sui risultati delle predizioni, e anch'esso come l'embedding è soggetto ad un processo di regressione svolto durante l'apprendimento.
+
+
+\subsubsection{Predizione}
+
+Premesso che embedding e bias sono appresi attraverso l'applicazione iterativa di specifici modelli di machine learning, è importante considerare quale sia la metodologia da utilizzare per effettuare il confronto fra utenti e prodotti. Il metodo scelto determina anche la modalità di esecuzione della predizione, che dev'essere svolta per ogni possibile coppia di utenti e prodotti.
+
+La fase di predizione è pertanto dipendente dal concetto di similarità fra elementi, che può essere calcolata con diverse tecniche. Fra le più utilizzate si trovano ad esempio l'applicazione del \textbf{prodotto scalare}, la \textbf{distanza euclidea} o la \textbf{cosine similarity}. Considerando ad esempio una similarità basata su prodotto scalare, la predizione del \texttt{rating} per l'utente $u$ e il prodotto $p$ è calcolata come segue: 
+\[rating_{up} = dot\_product(user, product) + bias_u + bias_p\]
+
+Il risultato produce un numero decimale compreso fra 1 e 5, che rappresenta il rating predetto. Applicando la formula ad ogni coppia di utenti e prodotti e verificando quando tali predizioni si discostino dai valori reali è possibile calcolare la \textit{loss} al fine di valutare il modello, inteso come combinazione di embedding e bias. L'apprendimento avviene quindi tramite l'applicazione di algoritmi di ottimizzazione con lo scopo di ridurre al minimo l'errore generale commesso per le predizioni.
+
+
+
+\subsection{Implementazione}
+
+Per sperimentare un modello di collaborative filtering si è scelto di provare la libreria Python \texttt{fastai} \cite{site:fastai}, pensata per l'applicazione di algoritmi di deep learning tramite reti neurali e l'utilizzo del GPU-computing per la riduzione dei tempi di computazione.
+
+Tale libreria prevede un pacchetto \texttt{collab} appositamente pensato per implementare collaborative filtering in maniera piuttosto trasparente al programmatore. Attraverso la costruzione di una struttura dati ottimizzata è quindi in grado di apprendere gli embedding attraverso la tecnica del prodotto scalare o l'utilizzo di una rete neurale.
+
+Appresi i parametri del modello è quindi possibile svolgere predizioni fornendo gli identificativi di utenti e prodotti per cui si vuole predire il \texttt{rating} attraverso il modello.
+
+
 
 \subsection{Risultati}
 
+Nonostante la semplicità di utilizzo di \texttt{fastai} per la creazione del modello, la libreria sembra essere ancora in fase di sviluppo e manca di funzionalità avanzate per la visualizzazione di molte metriche di valutazione. Inoltre, non è prevista una funzione che permetta di effettuare le predizioni sull'intero dataset, poiché la corrispondente \texttt{predict} funziona solamente con gli elementi esplicitamente passati come argomento. Pertanto, non è particolarmente facile ottenere metriche aggiuntive rispetto alla \textit{loss} fornita dalla libreria in seguito all'apprendimento con politica 1cycle \cite{site:1cycle}.
+
+Tali valori sono riportati nella tabella \ref{tab:collab-dot-loss} e si riferiscono ad un apprendimento svolto su 5 cicli con il metodo del prodotto scalare (classe \texttt{EmbeddingDotBias}). Gli embedding considerati sono di 50 elementi ciascuno e la divisione fra training e test set è di 70-30\%. La colonna \texttt{train\_loss} mostra la \textit{loss} per il training set mentre la colonna \texttt{valid\_loss} corrisponde a quella del test set, entrambe calcolate come errore quadratico medio (MSE). La figura \ref{fig:collab-dot-loss} mostra i medesimi dati in formato grafico.
+
+\begin{table}[H]
+	\caption{Collaborative filtering - MSE, prodotto scalare}\label{tab:collab-dot-loss}
+	\centering
+	\begin{tabular}{|l|l|l|l|}
+		\hline
+		epoch & train\_loss & valid\_loss & time \\
+		\hline
+		0 & 1.759442 & 1.781469 & 00:10 \\
+		1 & 1.812946 & 1.778362 & 00:10 \\
+		2 & 1.815518 & 1.775815 & 00:10 \\
+		3 & 1.782015 & 1.774578 & 00:10 \\
+		4 & 1.796784 & 1.774369 & 00:10 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/07_02_loss_dot.png}
+	\caption[Collaborative filtering - MSE, prodotto scalare]{Collaborative filtering - MSE, prodotto scalare}
+	\label{fig:collab-dot-loss}
+\end{figure}
+
+É possibile notare che la \textit{loss} sia coerente fra training e test set, pertanto dedurre che il modello è valido anche se i corrispondenti valori non sono realmente discendenti fra un ciclo e l'altro, come se il modello non riuscisse a migliorarsi dopo la prima epoca. Questo risultato è stato ottenuto a seguito di svariati esperiementi con i parametri messi a disposizione da \texttt{fastai} e anche operando un severo undersampling sul dataset originale al fine di bilanciare la variabile target, con la quale altrimenti si otteneva un errore quadratico medio anche superiore a 5.
+
+A differenza di quanto scelto per la parte di sentiment analysis, i modelli di collaborative filtering sono in grado di operare correttamente su una scala numerica da 1 a 5, pertanto non è stato utilizzato il target binarizzato bensì quello originale. La distribuzione del \texttt{rating} a seguito dell'undersampling è mostrata in figura \ref{fig:collab-rating-distr}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.6]{images/07_03_rating_distr}
+	\caption[Collaborative filtering - Distribuzione \texttt{rating} dopo undersampling]{Collaborative filtering - Distribuzione \texttt{rating} dopo undersampling}
+	\label{fig:collab-rating-distr}
+\end{figure}
+
+É inoltre possibile visualizzare sul piano cartesiano in figura \ref{fig:embedding-chart} il posizionamento degli embedding relativi ad alcuni prodotti, per comprendere meglio cosa significhi rappresentare un'entità in uno spazio vettoriale. Prodotti spazialmente vicini sono classificati dal modello di collaborative filtering come fossero prodotti simili.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.32]{images/07_04_embeddings.png}
+	\caption[Embedding di alcuni prodotti]{Embedding di alcuni prodotti}
+	\label{fig:embedding-chart}
+\end{figure}
+
+
+Si conclude mostrando i risultati ottenuti sul medesimo dataset utilizzando una rete neurale per l'apprendimento dei vettori embedding attraverso la classe \texttt{EmeddingNN}. I valori in tabella \ref{tab:collab-nn-loss} evidenziano un comportamento anomalo: mentre l'errore sul training set diminuisce, quello sul testing set aumenta. Ciò è sicuramente dovuto ad un fenomeno di overfitting sul training set, che pur ottenendo ottimi risultati in termini di \textit{loss} non può essere considerato corretto per la valutazione di nuovi input.
+
+\begin{table}[H]
+	\caption{Collaborative filtering - MSE, rete neurale}\label{tab:collab-nn-loss}
+	\centering
+	\begin{tabular}{|l|l|l|l|}
+		\hline
+		epoch & train\_loss & valid\_loss & time \\
+		\hline
+		0 & 1.566893 & 1.555539 & 00:12 \\
+		1 & 1.442341 & 1.514163 & 00:12 \\
+		2 & 0.915686 & 1.689367 & 00:12 \\
+		3 & 0.417644 & 1.730109 & 00:12 \\
+		4 & 0.196566 & 1.756861 & 00:12 \\
+		\hline
+	\end{tabular}
+\end{table}
 
 
 \clearpage
@@ -794,9 +919,9 @@ Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \ci
 
 Lo studio è riuscito a dimostrare le innumerevoli possibilità di effettuare analisi sul dominio delle recensioni. Considerando sia l'elaborazione del linguaggio naturale che l'analisi sulla rete è possibile ottenere risultati molto importanti e anche piuttosto precisi sotto diversi aspetti, che possono sicuramente rappresentare un contributo fondamentale al miglioramento del business di un'azienda.
 
-In particolare, analizzare le recensioni di Amazon può essere utile sia ai venditori che al portale di e-commerce stesso per migliorare i propri servizi o sapere come ampliare l'offerta commerciale, curando magari gli aspetti più carenti. Con assoluta certezza si potrebbe appurare che parte del successo di Amazon è stato acquisito anche grazie ad analisi di questo tipo.
+In particolare, l'analisi delle recensioni di Amazon può essere utile sia ai produttori che al portale di e-commerce stesso per migliorare i propri servizi o sapere come ampliare l'offerta commerciale, curando magari gli aspetti più carenti. Con assoluta certezza si potrebbe appurare che parte del successo di Amazon è stato acquisito anche grazie ad analisi di questo tipo.
 
-I medesimi modelli possono essere facilmente riadattati a qualsiasi altro dominio preveda l'utilizzo di recensioni e sarebbe sicuramente curioso sapere quali dei principali colossi tech odierni abbiano sfruttato metodologie di sentiment analysis per scalare le vette di mercato. Allo stesso modo, uno sviluppo futuro potrebbe essere rappresentato dalla possibilità di comprendere se i metodi presentati sono ugualmente performanti anche sull'analisi dei commenti di un social network, per esempio.
+I medesimi modelli possono essere facilmente riadattati a qualsiasi altro dominio preveda l'utilizzo di recensioni e sarebbe sicuramente interessante approfondire quali dei principali colossi tech odierni abbiano sfruttato metodologie di sentiment analysis e collaborative filtering per scalare le vette di mercato. Si è visto ad esempio nel capitolo \ref{sec:spotify} come l'azienda sia in grado di fornire ai propri utenti un modello di raccomandazione della musica sfruttando approcci misti di collaborative filtering, natural language processing e analisi delle componenti audio tramite deep learning. Considerata la precisione dei risultati ottenuti si può dedurre che il modo migliore per ottimizzare l'utilizzo dei dati raccolti sia quello di combinare molteplici approcci di analisi e machine learning.
 
 
 
