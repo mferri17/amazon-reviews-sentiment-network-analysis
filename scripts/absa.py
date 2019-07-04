@@ -335,30 +335,31 @@ def identifyOpinion(aspect, tokenized):
                         if pos == 'JJ':
                             output[aspect]["neutral"]["adjectives"].append(words)
 
-        if(p>0):
-            output[aspect]["positive"]["score"]=round(output[aspect]["positive"]["score"]/p,1)
-            output[aspect]["positive"]["percent"]=(p/count)*100
-        if(ng>0):
-            output[aspect]["negative"]["score"]=round(output[aspect]["negative"]["score"]/ng,1)
-            output[aspect]["negative"]["percent"]=(ng/count)*100
-        if(n>0):
-            output[aspect]["neutral"]["score"]=round(output[aspect]["neutral"]["score"]/n,1)
-            output[aspect]["neutral"]["percent"]=(n/count)*100
+        if (aspect in output):
+            if(p>0):
+                output[aspect]["positive"]["score"]=round(output[aspect]["positive"]["score"]/p,1)
+                output[aspect]["positive"]["percent"]=(p/count)*100
+            if(ng>0):
+                output[aspect]["negative"]["score"]=round(output[aspect]["negative"]["score"]/ng,1)
+                output[aspect]["negative"]["percent"]=(ng/count)*100
+            if(n>0):
+                output[aspect]["neutral"]["score"]=round(output[aspect]["neutral"]["score"]/n,1)
+                output[aspect]["neutral"]["percent"]=(n/count)*100
 
-        perc = apportion_pcts([
-            output[aspect]["positive"]["percent"],
-            output[aspect]["negative"]["percent"],
-            output[aspect]["neutral"]["percent"]
-        ],100)
+            perc = apportion_pcts([
+                output[aspect]["positive"]["percent"],
+                output[aspect]["negative"]["percent"],
+                output[aspect]["neutral"]["percent"]
+            ],100)
 
-        output[aspect]["positive"]["percent"] = perc[0]
-        output[aspect]["negative"]["percent"] = perc[1]
-        output[aspect]["neutral"]["percent"] = perc[2]
+            output[aspect]["positive"]["percent"] = perc[0]
+            output[aspect]["negative"]["percent"] = perc[1]
+            output[aspect]["neutral"]["percent"] = perc[2]
 
-        # make list unique
-        output[aspect]["positive"]["adjectives"] = list(set(output[aspect]["positive"]["adjectives"]))
-        output[aspect]["negative"]["adjectives"] = list(set(output[aspect]["negative"]["adjectives"]))
-        output[aspect]["neutral"]["adjectives"] = list(set(output[aspect]["neutral"]["adjectives"]))
+            # make list unique
+            output[aspect]["positive"]["adjectives"] = list(set(output[aspect]["positive"]["adjectives"]))
+            output[aspect]["negative"]["adjectives"] = list(set(output[aspect]["negative"]["adjectives"]))
+            output[aspect]["neutral"]["adjectives"] = list(set(output[aspect]["neutral"]["adjectives"]))
 
     return output
 

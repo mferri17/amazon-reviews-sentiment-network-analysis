@@ -38,9 +38,11 @@ app.post('/sentiment', (req, res) => {
         if (err) {
           reject(err);
         } else {
-          const absa = JSON.parse(fs.readFileSync(tempFile, 'utf8'));
-          fs.unlinkSync(tempFile);
-          resolve(absa);
+          setTimeout(() => {
+            const absa = JSON.parse(fs.readFileSync(tempFile, 'utf8'));
+            fs.unlinkSync(tempFile);
+            resolve(absa);
+          }, 300);
         }
       });
     })
