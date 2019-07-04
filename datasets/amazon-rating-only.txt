@@ -1,1 +1,4 @@
+
+Here's also available rating.only datasets. They are not used, but still compatible with our network notebook.
+
 http://jmcauley.ucsd.edu/data/amazon/

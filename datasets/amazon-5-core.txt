@@ -1,1 +1,9 @@
-http://jmcauley.ucsd.edu/data/amazon/
+
+For notebooks execution is not necessary to download dataset, they download it alone from the original repository. By the way, read_dataset(path) can be also called instead of download_dataset(path) if dataset has already been downloaded from user.
+It is also available in the /scripts folder in order to run the demo app.
+
+The following is the default dataset used by both notebooks and app.
+
+Source:	http://jmcauley.ucsd.edu/data/amazon/
+Name:	reviews_Clothing_Shoes_and_Jewelry_5
+Url: 	http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Clothing_Shoes_and_Jewelry_5.json.gz
