@@ -270,9 +270,7 @@ Analizzando quindi la distribuzione del \texttt{rating} suddiviso per mesi e gio
 \label{sec:network-anal}
 
 
-Nonostante tale elaborato non si concentri sugli aspetti che sia possibile considerare attraverso la rete costituita da utenti, prodotti e recensioni, questo capitolo presenta comunque una breve analisi di tale rete poiché può essere utile ad analizzare il dataset da un punto di vista descrittivo.
-
-\vspace{3ex}
+Nonostante tale elaborato non si concentri sugli aspetti che sia possibile considerare attraverso la rete costituita da utenti, prodotti e recensioni, questo capitolo presenta comunque una breve analisi di tale rete poiché può essere utile ad analizzare il dataset da un punto di vista descrittivo. L'analisi della rete si mostrerà inoltre utile anche per il capitolo \ref{sec:collaborative}.
 
 Con un dataset di recensioni è possibile costruire tre diverse tipologie di rete:
 
@@ -330,7 +328,7 @@ Di maggiore interesse appare invece la parte bassa della rete, rappresentata in 
 \subsection{Grado dei nodi}
 \label{sec:nodes-degree}
 
-Il principale motivo per cui si è deciso di costruire la rete associata al dominio in esame è l'analisi del grado dei nodi facenti parte della rete. Per come essa è stata costruita, l'\textit{out-degree} di un nodo rappresenta le recensioni fatte da un utente, mentre l'\textit{in-degree} costituisce quelle ricevute da un prodotto. É chiaro che ogni nodo avrà sempre uno dei due gradi uguale a zero.
+Oltre alla visualizzazione della struttura, una delle analisi fondamentali che si può fare sulla rete è l'analisi del grado dei nodi. Per come essa è stata costruita, l'\textit{out-degree} di un nodo rappresenta le recensioni fatte da un utente, mentre l'\textit{in-degree} costituisce quelle ricevute da un prodotto. É chiaro che ogni nodo avrà sempre uno dei due gradi uguale a zero.
 
 Particolarmente rilevante è quindi la distribuzione dei due gradi, al fine di comprendere se all'interno del dataset compaiano utenti e prodotti con un eguale distribuzione di recensioni, piuttosto che invece utenti particolarmente attivi o prodotti molto popolari. Si fa inoltre notare che, come accennato nella sezione \ref{sec:dataset}, il grado minimo di ciascun nodo è pari a cinque poiché il dataset è ottenuto attraverso l'estrazione di un sottografo 5-induttivo da una rete molto più grande.
 
@@ -785,6 +783,7 @@ L'utilizzo di un sistema di questo genere quindi sembrerebbe essere maggiormente
 
 
 \section{Collaborative Filtering}
+\label{sec:collaborative}
 
 
 É stato mostrato come attraverso l'analisi del linguaggio naturale sia possibile ricavare l'opinione di un utente nei confronti di un prodotto o di svariati aspetti legati al business che si sta analizzando. Attraverso l'analisi del sentiment di un gruppo di utenti, è inoltre possibile costruire un modello di raccomandazione su una collezione di prodotti. Ciò è implementabile attraverso due possibili approcci:
@@ -840,32 +839,41 @@ Il risultato produce un numero decimale compreso fra 1 e 5, che rappresenta il r
 
 \subsection{Implementazione}
 
-Per sperimentare un modello di collaborative filtering si è scelto di provare la libreria Python \texttt{fastai} \cite{site:fastai}, pensata per l'applicazione di algoritmi di deep learning tramite reti neurali e l'utilizzo del GPU-computing per la riduzione dei tempi di computazione.
+Per sperimentare l'utilizzo di un modello di collaborative filtering sul dataset considerato, si è quindi scelto di provare la libreria Python \texttt{fastai} \cite{site:fastai}, pensata per l'applicazione di algoritmi di deep learning tramite reti neurali e l'utilizzo della \textit{GPU} per ridurre i tempi di computazione.
 
-Tale libreria prevede un pacchetto \texttt{collab} appositamente pensato per implementare collaborative filtering in maniera piuttosto trasparente al programmatore. Attraverso la costruzione di una struttura dati ottimizzata è quindi in grado di apprendere gli embedding attraverso la tecnica del prodotto scalare o l'utilizzo di una rete neurale.
-
-Appresi i parametri del modello è quindi possibile svolgere predizioni fornendo gli identificativi di utenti e prodotti per cui si vuole predire il \texttt{rating} attraverso il modello.
+Tale libreria fornisce un pacchetto \texttt{collab} appositamente pensato per implementare facilmente un modello di collaborative filtering. Attraverso la costruzione di una struttura dati ottimizzata, la libreria è in grado di apprendere gli embedding attraverso la tecnica del prodotto scalare o l'utilizzo di una rete neurale. Appresi i parametri del modello è quindi possibile svolgere predizioni fornendo gli identificativi di utenti e prodotti per cui si vuole tentare di predire il \texttt{rating}.
 
 
 
 \subsection{Risultati}
 
-Nonostante la semplicità di utilizzo di \texttt{fastai} per la creazione del modello, la libreria sembra essere ancora in fase di sviluppo e manca di funzionalità avanzate per la visualizzazione di molte metriche di valutazione. Inoltre, non è prevista una funzione che permetta di effettuare le predizioni sull'intero dataset, poiché la corrispondente \texttt{predict} funziona solamente con gli elementi esplicitamente passati come argomento. Pertanto, non è particolarmente facile ottenere metriche aggiuntive rispetto alla \textit{loss} fornita dalla libreria in seguito all'apprendimento con politica 1cycle \cite{site:1cycle}.
+Nonostante la semplicità di utilizzo di \texttt{fastai} per la creazione del modello, la libreria sembra essere ancora in fase di sviluppo e manca di funzionalità avanzate per la visualizzazione di molte metriche di valutazione. Pertanto, non è particolarmente facile ottenere metriche aggiuntive rispetto alla \textit{loss} fornita dalla libreria in seguito all'apprendimento con politica 1-cycle \cite{site:1cycle}.
 
-Tali valori sono riportati nella tabella \ref{tab:collab-dot-loss} e si riferiscono ad un apprendimento svolto su 5 cicli con il metodo del prodotto scalare (classe \texttt{EmbeddingDotBias}). Gli embedding considerati sono di 50 elementi ciascuno e la divisione fra training e test set è di 70-30\%. La colonna \texttt{train\_loss} mostra la \textit{loss} per il training set mentre la colonna \texttt{valid\_loss} corrisponde a quella del test set, entrambe calcolate come errore quadratico medio (MSE). La figura \ref{fig:collab-dot-loss} mostra i medesimi dati in formato grafico.
+A scopo puramente esemplificativo, viene innanzitutto mostrat sul piano cartesiano in figura \ref{fig:embedding-chart} il posizionamento degli embedding relativi ad alcuni prodotti, per comprendere meglio cosa significhi rappresentare un'entità in uno spazio vettoriale. Prodotti spazialmente vicini dovrebbero essere classificati dal modello di collaborative filtering come fossero prodotti simili.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.30]{images/07_04_embeddings.png}
+	\caption[Embedding di alcuni prodotti]{Embedding di alcuni prodotti}
+	\label{fig:embedding-chart}
+\end{figure}
+
+Per quanto riguarda invece la parte di valutazione delle performance, i valori rilevati per il modello di apprendimento sono riportati nella tabella \ref{tab:collab-dot-loss}. Questi si riferiscono alla fase di apprendimento svolta su 5 cicli con il metodo del prodotto scalare per il calcolo della similarità. Gli embedding considerati sono di 20 elementi ciascuno e la divisione fra training e test set è di 70-30\%.
+
+La colonna \texttt{train\_loss} mostra la \textit{loss} per il training set mentre la colonna \texttt{valid\_loss} corrisponde a quella del test set, entrambe calcolate come errore quadratico medio (MSE). La figura \ref{fig:collab-dot-loss} mostra i medesimi dati in formato grafico.
 
 \begin{table}[H]
 	\caption{Collaborative filtering - MSE, prodotto scalare}\label{tab:collab-dot-loss}
 	\centering
 	\begin{tabular}{|l|l|l|l|}
 		\hline
-		epoch & train\_loss & valid\_loss & time \\
+		epoch & train\_loss & valid\_loss & time \\ 
 		\hline
-		0 & 1.759442 & 1.781469 & 00:10 \\
-		1 & 1.812946 & 1.778362 & 00:10 \\
-		2 & 1.815518 & 1.775815 & 00:10 \\
-		3 & 1.782015 & 1.774578 & 00:10 \\
-		4 & 1.796784 & 1.774369 & 00:10 \\
+		0 & 2.717241 & 2.697971 & 00:36 \\ 
+		1 & 2.539666 & 2.543803 & 00:37 \\ 
+		2 & 2.429567 & 2.443485 & 00:36 \\ 
+		3 & 2.344157 & 2.401317 & 00:36 \\ 
+		4 & 2.330287 & 2.394638 & 00:36 \\ 
 		\hline
 	\end{tabular}
 \end{table}
@@ -877,53 +885,39 @@ Tali valori sono riportati nella tabella \ref{tab:collab-dot-loss} e si riferisc
 	\label{fig:collab-dot-loss}
 \end{figure}
 
-É possibile notare che la \textit{loss} sia coerente fra training e test set, pertanto dedurre che il modello è valido anche se i corrispondenti valori non sono realmente discendenti fra un ciclo e l'altro, come se il modello non riuscisse a migliorarsi dopo la prima epoca. Questo risultato è stato ottenuto a seguito di svariati esperiementi con i parametri messi a disposizione da \texttt{fastai} e anche operando un severo undersampling sul dataset originale al fine di bilanciare la variabile target, con la quale altrimenti si otteneva un errore quadratico medio anche superiore a 5.
+É possibile notare che la \textit{loss} sia coerente fra training e test set, pertanto si potrebbe dedurre che l'apprendimento sia svolto correttamente. Tuttavia, i corrispondenti valori discendono molto gradualmente fra un ciclo e l'altro, come se il modello non riuscisse a migliorarsi molto dopo la prima epoca. Per tentare di migliorare l'apprendimento si sono provate svariate combinazioni di parametri, sia relativamente al numero di elementi costituenti gli embedding e sia per cercare di ottimizzare la regressione, variando i valori di \textit{learning rate} e \textit{weight decay}. Tutti i tentativi hanno prodotto risultati del tutto paragonabili e si è evinto che lo scarto quadratico medio convergesse a 2.07 dopo il quindicesimo ciclo.
 
-A differenza di quanto scelto per la parte di sentiment analysis, i modelli di collaborative filtering sono in grado di operare correttamente su una scala numerica da 1 a 5, pertanto non è stato utilizzato il target binarizzato bensì quello originale. La distribuzione del \texttt{rating} a seguito dell'undersampling è mostrata in figura \ref{fig:collab-rating-distr}.
+Si fa inoltre notare che, a differenza di quanto operato per la parte di sentiment analysis, i modelli di collaborative filtering non ottengono particolari miglioramenti lavorando su problemi binari, pertanto si è deciso di addestrare il modello sul problema multiclasse. Mostrando graficamente le predizioni effettuate su un campione del dataset a seguito del training, si è scoperto tuttavia un comportamento molto strano; come mostrato in figura \ref{fig:collab-preds}, si è evinto che il modello classificasse il \texttt{rating} intorno al valore 3 per qualsiasi coppia di utente e prodotto considerata.
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[scale=0.6]{images/07_03_rating_distr}
-	\caption[Collaborative filtering - Distribuzione \texttt{rating} dopo undersampling]{Collaborative filtering - Distribuzione \texttt{rating} dopo undersampling}
-	\label{fig:collab-rating-distr}
-\end{figure}
+Si è quindi scelto di effettuare un'operazione di downsampling sul dataset per tentare di bilanciare la classe target, ma la situazione si è quindi rivelata addirittura peggiore: la \textit{loss} calcolata era minore, ma le predizioni giacevano tutte in un intorno ancor più ristretto del valore 3.
 
-É inoltre possibile visualizzare sul piano cartesiano in figura \ref{fig:embedding-chart} il posizionamento degli embedding relativi ad alcuni prodotti, per comprendere meglio cosa significhi rappresentare un'entità in uno spazio vettoriale. Prodotti spazialmente vicini sono classificati dal modello di collaborative filtering come fossero prodotti simili.
+Per risalire alla causa del problema si è pensato che l'errore potesse risidere nelle modalità di apprendimento del modello, quindi si è deciso di testare come controprova il medesimo codice sorgente per l'implementazione di collaborative filtering su un dataset spesso utilizzato come esempio: quello di Movielens, contenente un totale di 100.000 recensioni di film. Il risultato, mostrato in figura \ref{fig:collab-preds-movielens}, presenta una distribuzione delle predizioni nettamente migliore, sull'intera scala di valori ammissibili, riuscendo pertanto a dimostrare la sensatezza del modello implementato.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.32]{images/07_04_embeddings.png}
-	\caption[Embedding di alcuni prodotti]{Embedding di alcuni prodotti}
-	\label{fig:embedding-chart}
+	\includegraphics[scale=0.55]{images/07_05_predictions.png}
+	\caption[Predizioni del modello, tutte molto vicine a 3]{Predizioni del modello, tutte molto vicine a 3}
+	\label{fig:collab-preds}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.55]{images/07_05_predictions_movielens.png}
+\caption[Predizioni sul dataset di Movielens, ben distribute]{Predizioni sul dataset di Movielens, ben distribute}
+\label{fig:collab-preds-movielens}
+\end{figure}
 
-Si conclude mostrando i risultati ottenuti sul medesimo dataset utilizzando una rete neurale per l'apprendimento dei vettori embedding attraverso la classe \texttt{EmeddingNN}. I valori in tabella \ref{tab:collab-nn-loss} evidenziano un comportamento anomalo: mentre l'errore sul training set diminuisce, quello sul testing set aumenta. Ciò è sicuramente dovuto ad un fenomeno di overfitting sul training set, che pur ottenendo ottimi risultati in termini di \textit{loss} non può essere considerato corretto per la valutazione di nuovi input.
-
-\begin{table}[H]
-	\caption{Collaborative filtering - MSE, rete neurale}\label{tab:collab-nn-loss}
-	\centering
-	\begin{tabular}{|l|l|l|l|}
-		\hline
-		epoch & train\_loss & valid\_loss & time \\
-		\hline
-		0 & 1.566893 & 1.555539 & 00:12 \\
-		1 & 1.442341 & 1.514163 & 00:12 \\
-		2 & 0.915686 & 1.689367 & 00:12 \\
-		3 & 0.417644 & 1.730109 & 00:12 \\
-		4 & 0.196566 & 1.756861 & 00:12 \\
-		\hline
-	\end{tabular}
-\end{table}
-
+In funzione di queste considerazioni si è pensato che il problema potesse risiedere nel dataset, e non nel modello. Si è quindi deciso di effettuare un'analisi di comparazione del dataset di Amazon con quello di Movielens, sfruttando la rete creata nel capitolo \ref{sec:network-anal}. Considerata la distribuzione delle predizioni intorno al valore 3, che rappresenta anche il valore medio della variabile \texttt{rating}, si è pensato che il problema potesse essere rappresentato la mancanza nel dataset di un sufficiente numero di utenti o prodotti che condividessero recensioni. Considerate ad esempio le possibili coppie di utenti, è fondamentale che queste abbiano in comune un certo numero di recensioni sugli stessi prodotti affinché collaborative filtering sia in grado di considerare due utenti simili e pertanto suggerire nuovi prodotti da acquistare. Se questa assunzione viene a mancare all'interno del dataset, allora tale modello di raccomandazione non può algoritmicamente funzionare.
 
 
 \subsection{Il caso Spotify}
 \label{sec:spotify}
 
-Purtroppo, collaborative filtering è particolarmente carente nel momento in cui all'interno del catalogo di prodotti si introduce un nuovo articolo, privo di recensioni. In questo caso, tale approccio non può algoritmicamente suggerire il nuovo arrivato e al contrario potrebbe essere causa dell'isolamento del suddetto prodotto, qualora gli utenti continuassero a ricevere suggerimenti sui soli elementi già ampiamente recensiti. Per questo motivo, un sistema di raccomandazione non dovrebbe essere implementato con il solo collaborative filtering al fine di prendere delle contromisure per i prodotti nuovi o poco conosciuti. Agire sul piano pubblicitario potrebbe essere la mossa più intuitiva, ma è lenta e costosa, perciò si incoraggia l'integrazione di diversi modelli all'interno del sistema di raccomandazione.
+Come si è visto, in alcuni casi collaborative filtering non è sufficiente a costituire un buon metodo di raccomandazione. Questo può accadere qualora all'interno del dataset non vi siano realmente utenti o prodotti simili o, ancora più facilmente, possono verificarsi problemi nel momento in cui all'interno del catalogo di prodotti si introducono nuovi articoli, pertanto privi di recensioni. In questo caso, tale approccio non può suggerire il nuovo arrivato e al contrario potrebbe essere causa dell'isolamento dei suddetti prodotto, qualora gli utenti continuassero a ricevere suggerimenti sui soli elementi già ampiamente recensiti.
 
-Un portavoce di questa tecnica di marketing è sicuramente Spotify\cite{site:spotify}, servizio per lo streaming di musica on-demand, che a collaborative filtering non affianca solamente un sistema di raccomandazione content-based già citato nell'introduzione di questo capitolo, ma anche un modello basato sull'analisi dello spettro audio delle canzoni tramite deep learning \cite{site:spotify-article}. É così che nasce \textbf{Discover Weekly}\cite{site:spotify-discover}: attraverso l'elaborazione del linguaggio naturale nei testi delle canzoni, l'analisi sugli ascolti pregressi in combinazione con quella sui metadati (es: il genere musicale) e le componenti audio ricorrenti nelle canzoni che si preferiscono, Spotify è in grado di suggerire \textbf{ogni settimana a tutti i suoi utenti} una lista \textbf{personalizzata} di canzoni inedite che, con alta probabilità, saranno apprezzate dall'utente a cui vengono suggerite. Il sistema permette a chiunque di conoscere canzoni che altrimenti non si sarebbero scoperte, senza di fatto influenzare negativamente gli artisti emergenti.
+Per questo motivo, un sistema di raccomandazione non dovrebbe essere implementato con il solo collaborative filtering, ma è bisognoso di alcune contromisure che impediscano l'insorgere di situazioni spiacevoli. Agire sul piano pubblicitario potrebbe essere la mossa più intuitiva per risolvere il problema dei nuovi prodotti, ma oltre ad essere lenta e costosa non ha alcun effetto nei casi in cui - come nel dataset considerato per questo studio - non vi siano sufficienti recensioni per considerare simili un gruppo di utenti e prodotti. In funzione di queste considerazione, è fortemente incoraggiata l'integrazione di diversi modelli per il funzionamento del sistema di raccomandazione.
+
+Un portavoce di questa tecnica di marketing è sicuramente Spotify\cite{site:spotify}, servizio per lo streaming di musica on-demand, che a collaborative filtering non affianca solamente un sistema di raccomandazione content-based già citato nell'introduzione di questo capitolo, ma anche un modello basato sull'analisi dello spettro audio delle canzoni tramite deep learning \cite{site:spotify-article}. É così che nasce \textbf{Discover Weekly}\cite{site:spotify-discover}: attraverso l'elaborazione del linguaggio naturale nei testi delle canzoni, l'analisi sugli ascolti pregressi in combinazione con quella sui metadati (es: il genere musicale) e le componenti audio ricorrenti nelle canzoni che si preferiscono, Spotify è in grado di suggerire \textbf{ogni settimana a tutti i suoi utenti} una lista \textbf{personalizzata} di canzoni inedite che, con alta probabilità, saranno apprezzate dall'utente a cui vengono suggerite. Il sistema permette a chiunque di conoscere canzoni che altrimenti non si sarebbero scoperte, senza di fatto presentare alcuna sorta di bias per gli artisti emergenti o comunità di nicchia.
 
 
 
@@ -935,9 +929,6 @@ Un portavoce di questa tecnica di marketing è sicuramente Spotify\cite{site:spo
 \label{sec:ui}
 
 Al fine di dimostrare l'utilizzo della sentiment analysis in un applicativo software, viene qui illustrato lo sviluppo e il funzionamento di un'applicazione web che permette la predizione del sentiment di una recensione, sia sul piano globale che a livello dei singoli aspetti identificabili. Viene inoltre mostrata a scopo esemplificativo un'interfaccia per la visualizzazione degli aspetti più ricorrenti nel dataset.
-
-% TODO
-Un'ultima funzionalità permette la visualizzazione dei prodotti consigliati ad un utente scelto fra quelli disponibili nel dataset.
 
 
 
@@ -954,10 +945,9 @@ Il frontend è invece sviluppato utilizzando la libreria Javascript React.js \ci
 \subsection{Aspect Based Sentiment Analysis}
 \label{sec:ui_abas}
 
-% TODO
-All'avvio dell'app tramite web browser viene presentata la schermata principale con tre tab di selezione: {\it ABSA}, {\it Sentiment} e {\it Collaborative Filtering}.
+All'avvio dell'app tramite web browser viene presentata la schermata principale con due tab di selezione: {\it ABSA} e {\it Sentiment}.
 
-Selezionando il primo dei tre compare la videata rappresentata in figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_complete}, che contiene una lista di aspect, ognuno dei quali associato al sentiment predominante. Tale lista rappresenta le informazioni estratte dal dataset in riferimento al solo prodotto più recensito. Ciascuna riga mostra l'aspect sul lato sinistro, mentre nella parte destra vengono mostrate la polarità con il relativo score e la percentuale di frasi con tale polarità, in relazione a tutte quelle che lo riguardano. 
+Selezionando il primo dei due, compare la videata rappresentata in figura \ref{fig:aspect_ui_list} \subref{fig:aspect_ui_list_complete} che contiene una lista di aspect, ognuno dei quali associato al sentiment predominante. Tale lista rappresenta le informazioni estratte dal dataset in riferimento al solo prodotto più recensito. Ciascuna riga mostra l'aspect sul lato sinistro, mentre nella parte destra vengono mostrate la polarità con il relativo score e la percentuale di frasi con tale polarità, in relazione a tutte quelle che lo riguardano. 
 
 Facendo click su una delle righe è possibile espandere i dettagli e visualizzare, per ogni classe (positiva, negativa o neutrale), le frasi e gli aggettivi ad essa associati, così come mostrato in figura \subref{fig:aspect_ui_list_expanded}.
 
@@ -991,23 +981,6 @@ La figura \ref{fig:sentiment_ui_prediction} mostra un'anteprima dell'interfaccia
 	\includegraphics[scale=0.35]{images/08_03_sentiment_ui_prediction.png}
 	\caption[Sentiment prediction UI]{Sentiment prediction UI}
 	\label{fig:sentiment_ui_prediction}
-\end{figure}
-
-
-\clearpage
-
-
-\subsection{Collaborative filtering}
-
-Nell'ultimo tab è invece possibile selezionare un utente e mostrare i prodotti che potrebbero potenzialmente essergli suggeriti da amazon, secondo quanto appreso dal dataset utilizzato. Una volta selezionato l'utente dal menù a tendina è quindi possibile premere il tasto sottostante per avviare la ricerca.
-
-Una volta ultimata è possibile visualizzare la lista di prodotti ordinata dal più rilevante al meno significativo, così come mostrato in figura \ref{fig:collaborative_filtering_ui}.
-
-\begin{figure}[H]
-	\centering
-%	\includegraphics[scale=0.3]{images/08_03_collaborative_filtering_ui.png}
-	\caption[Collaborative filtering UI]{Collaborative filtering UI}
-	\label{fig:collaborative_filtering_ui}
 \end{figure}
 
 
